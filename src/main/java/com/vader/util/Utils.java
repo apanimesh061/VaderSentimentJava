@@ -38,6 +38,11 @@ public class Utils {
     public static Float ALL_CAPS_BOOSTER_SCORE = 0.733f;
     public static Float EXCLAMATION_MARK_SCORE_AMPLIFIER = 0.292f;
     public static Float QUESTION_MARK_SCORE_AMPLIFIER = 0.18f;
+    public static Float N_SCALAR = -0.74f;
+    public static Float EXCLAMATION_BOOST = 0.292f;
+    public static Float QUESTION_BOOST_COUNT_3 = 0.292f;
+    public static Float QUESTION_BOOST = 0.96f;
+
 
     public static HashMap<String, Float> BOOSTER_DICTIONARY = new HashMap<String, Float>() {{
         put("decidedly", Utils.BOOSTER_WORD_INCREMENT);

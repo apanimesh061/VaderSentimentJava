@@ -14,7 +14,6 @@ import java.util.HashMap;
  *         Created on 4/9/2016.
  */
 public class Sentiment {
-    private HashMap<String, Float> polarity;
     private boolean isCapDiff;
 
     private boolean isCapDiff() {
@@ -80,15 +79,6 @@ public class Sentiment {
         return (float) normalizedScore;
     }
 
-    private boolean isAllCapDifferential(ArrayList<String> tokenList) {
-        int countAllCaps = 0;
-        for (String s : tokenList)
-            if (s.matches(Utils.ALL_CAPS_REGEXP))
-                countAllCaps += 1;
-        int capDifferential = tokenList.size() - countAllCaps;
-        return (0 < capDifferential) && (0 < tokenList.size());
-    }
-
     private float valenceModifier(String precedingWord, float currentValence) {
         float scalar = 0.0f;
         String precedingWordLower = precedingWord.toLowerCase();
@@ -137,7 +127,7 @@ public class Sentiment {
             if (word.length() <= 1)
                 wordsAndEmoticons.remove(word);
 
-        setCapDiff(isAllCapDifferential(wordsAndEmoticons));
+//        setCapDiff(isAllCapDifferential(wordsAndEmoticons));
 
         ArrayList<Float> sentiments = new ArrayList<>();
         for (String wordsAndEmoticon : wordsAndEmoticons) {
@@ -167,7 +157,7 @@ public class Sentiment {
                 if (index > 1 && Utils.WORD_VALENCE_DICTIONARY.containsKey(wordsAndEmoticons.get(index - 2).toLowerCase())) {
                     float s2 = valenceModifier(wordsAndEmoticons.get(index - 2), currentValence);
                     if (s2 != 0.0)
-                        s2 *= 0.9511f;
+                        s2 *= 0.95f;
                     currentValence += s2;
                     if (wordsAndEmoticons.get(index - 2).equals("never") && (wordsAndEmoticons.get(index - 1).equals("so") || wordsAndEmoticons.get(index - 1).equals("this"))) {
                         currentValence *= 1.5f;
