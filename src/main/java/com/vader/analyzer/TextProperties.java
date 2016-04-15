@@ -20,7 +20,7 @@ public class TextProperties {
     private void setWordsAndEmoticons() throws IOException {
         setWordsOnly();
 
-        ArrayList<String> wordsAndEmoticonsList = VaderAnalyzer.DefaultSplit(inputText);
+        ArrayList<String> wordsAndEmoticonsList = VaderLuceneAnalyzer.defaultSplit(inputText);
         for (int i = 0; i < wordsOnly.size(); i++)
             if (wordsOnly.get(i).length() <= 1)
                 wordsOnly.remove(i);
@@ -50,7 +50,7 @@ public class TextProperties {
     }
 
     private void setWordsOnly() throws IOException {
-        this.wordsOnly = VaderAnalyzer.RemovePunctuation(inputText);
+        this.wordsOnly = VaderLuceneAnalyzer.removePunctuation(inputText);
     }
 
     private void setCapDIff(boolean capDIff) {

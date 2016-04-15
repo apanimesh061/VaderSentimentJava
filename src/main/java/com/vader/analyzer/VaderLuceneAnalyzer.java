@@ -14,9 +14,9 @@ import java.util.ArrayList;
  * @author Animesh Pandey
  *         Created on 4/9/2016.
  */
-public class VaderAnalyzer {
+class VaderLuceneAnalyzer {
 
-    public static ArrayList<String> DefaultSplit(String inputString) throws IOException {
+    static ArrayList<String> defaultSplit(String inputString) throws IOException {
         StringReader reader = new StringReader(inputString);
         Tokenizer whiteSpaceTokenizer = new WhitespaceTokenizer();
         whiteSpaceTokenizer.setReader(reader);
@@ -34,7 +34,7 @@ public class VaderAnalyzer {
         return tokenizedString;
     }
 
-    public static ArrayList<String> RemovePunctuation(String inputString) throws IOException {
+    static ArrayList<String> removePunctuation(String inputString) throws IOException {
         StringReader reader = new StringReader(inputString);
         Tokenizer removePunctuationTokenizer = new StandardTokenizer();
         removePunctuationTokenizer.setReader(reader);
