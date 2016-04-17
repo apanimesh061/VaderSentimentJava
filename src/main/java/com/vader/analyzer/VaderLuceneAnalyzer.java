@@ -1,6 +1,8 @@
 package com.vader.analyzer;
 
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
+import org.apache.lucene.analysis.miscellaneous.LengthFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.Tokenizer;
@@ -14,40 +16,61 @@ import java.util.ArrayList;
  * @author Animesh Pandey
  *         Created on 4/9/2016.
  */
-class VaderLuceneAnalyzer {
+class VaderLuceneAnalyzer implements VaderAnalyzerInterface {
 
-    static ArrayList<String> defaultSplit(String inputString) throws IOException {
+    /**
+     *
+     * @param inputString The input string to be pre-processed with Lucene white space tokenizer.
+     *                    A Lucene length filter is also applied to remove the tokens of length of 1.
+     * @return ArrayList<String> of tokens of inputString
+     * @throws IOException
+     */
+    public ArrayList<String> defaultSplit(String inputString) throws IOException {
         StringReader reader = new StringReader(inputString);
         Tokenizer whiteSpaceTokenizer = new WhitespaceTokenizer();
         whiteSpaceTokenizer.setReader(reader);
-        final CharTermAttribute charTermAttribute = whiteSpaceTokenizer.addAttribute(CharTermAttribute.class);
-        whiteSpaceTokenizer.reset();
+
+        TokenStream tokenStream = new LengthFilter(whiteSpaceTokenizer, 2 ,Integer.MAX_VALUE);
+        final CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
+        tokenStream.reset();
 
         ArrayList<String> tokenizedString = new ArrayList<>();
-        while (whiteSpaceTokenizer.incrementToken()) {
+        while (tokenStream.incrementToken()) {
             tokenizedString.add(charTermAttribute.toString());
         }
 
-        whiteSpaceTokenizer.end();
-        whiteSpaceTokenizer.close();
+        tokenStream.end();
+        tokenStream.close();
 
         return tokenizedString;
     }
 
-    static ArrayList<String> removePunctuation(String inputString) throws IOException {
+    /**
+     *
+     * @param inputString The input string to be pre-processed with Lucene standard tokenizer to remove
+     *                    punctuation.
+     *                    A Lucene length filter is also applied to remove the tokens of length of 1.
+     * @return ArrayList<String> of tokens of inputString
+     * @throws IOException
+     */
+    public ArrayList<String> removePunctuation(String inputString) throws IOException {
         StringReader reader = new StringReader(inputString);
-        Tokenizer removePunctuationTokenizer = new StandardTokenizer();
+
+        StandardTokenizer removePunctuationTokenizer = new StandardTokenizer();
         removePunctuationTokenizer.setReader(reader);
-        final CharTermAttribute charTermAttribute = removePunctuationTokenizer.addAttribute(CharTermAttribute.class);
-        removePunctuationTokenizer.reset();
+
+        TokenStream tokenStream = new LengthFilter(removePunctuationTokenizer, 2 ,Integer.MAX_VALUE);
+
+        final CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
+        tokenStream.reset();
 
         ArrayList<String> tokenizedString = new ArrayList<>();
-        while (removePunctuationTokenizer.incrementToken()) {
+        while (tokenStream.incrementToken()) {
             tokenizedString.add(charTermAttribute.toString());
         }
 
-        removePunctuationTokenizer.end();
-        removePunctuationTokenizer.close();
+        tokenStream.end();
+        tokenStream.close();
 
         return tokenizedString;
     }

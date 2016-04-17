@@ -34,7 +34,7 @@ If you use either the dataset or any of the VADER sentiment analysis tools (VADE
 
 The compressed .tar.gz package includes **PRIMARY RESOURCES** (items 1-3) as well as additional **DATASETS AND TESTING RESOURCES** (items 4-12):
 
-1. vader_icwsm2014_final.pdf <br />
+1. [VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text](http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf) <br />
     The original paper for the data set, see citation information (above).
 
 2. vader_sentiment_lexicon.txt <br />
@@ -89,6 +89,7 @@ The compressed .tar.gz package includes **PRIMARY RESOURCES** (items 1-3) as wel
 	the perceived sentiment intensity by 0.293, on average.
 
 4. tweets_GroundTruth.txt <br />
+    **NOTE**: This java module uses this file for testing. <br />
 	FORMAT: the file is tab delimited with ID, MEAN-SENTIMENT-RATING, and TWEET-TEXT <br />
     DESCRIPTION: includes "tweet-like" text as inspired by 4,000 tweets pulled from Twitter’s public timeline, plus 200 completely contrived tweet-like texts intended to specifically test syntactical and grammatical conventions of conveying differences in sentiment intensity. The "tweet-like" texts incorporate a fictitious username (@anonymous) in places where a username might typically appear, along with a fake URL ( http://url_removed ) in places where a URL might typically appear, as inspired by the original tweets. The ID and MEAN-SENTIMENT-RATING correspond to the raw sentiment rating data provided in 'tweets_anonDataRatings.txt' (described below).
 
@@ -130,7 +131,34 @@ The compressed .tar.gz package includes **PRIMARY RESOURCES** (items 1-3) as wel
 =======
 ##Java Code EXAMPLE:
 ```
+public static void main(String[] args) throws IOException {
+    ArrayList<String> sentences = new ArrayList<String>() {{
+        add("VADER is smart, handsome, and funny.");
+        add("VADER is smart, handsome, and funny!");
+        add("VADER is very smart, handsome, and funny.");
+        add("VADER is VERY SMART, handsome, and FUNNY.");
+        add("VADER is VERY SMART, handsome, and FUNNY!!!");
+        add("VADER is VERY SMART, really handsome, and INCREDIBLY FUNNY!!!");
+        add("The book was good.");
+        add("The book was kind of good.");
+        add("The plot was good, but the characters are uncompelling and the dialog is not great.");
+        add("A really bad, horrible book.");
+        add("At least it isn't a horrible book.");
+        add(":) and :D");
+        add("");
+        add("Today sux");
+        add("Today sux!");
+        add("Today SUX!");
+        add("Today kinda sux! But I'll get by, lol");
+    }};
 
+    for (String sentence : sentences) {
+        System.out.println(sentence);
+        SentimentAnalyzer sentimentAnalyzer = new SentimentAnalyzer(sentence);
+        sentimentAnalyzer.analyse();
+        System.out.println(sentimentAnalyzer.getPolarity());
+    }
+}
 ```
 =======
 

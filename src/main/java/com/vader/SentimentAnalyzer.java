@@ -6,9 +6,15 @@ import com.vader.util.Utils;
 import org.apache.log4j.Logger;
 import org.apache.commons.lang.StringUtils;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.*;
 
 /**
+ * The SentimentAnalyzer class is the main class for VADER Sentiment analysis.
+ * @see <a href="http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf">VADER: A Parsimonious Rule-based Model for
+Sentiment Analysis of Social Media Text</a>
+ *
  * @author Animesh Pandey
  *         Created on 4/11/2016.
  */
@@ -43,7 +49,7 @@ public class SentimentAnalyzer {
             scalar = Utils.BOOSTER_DICTIONARY.get(precedingWordLower);
             if (currentValence < 0.0)
                 scalar *= -1.0;
-            if (precedingWord.matches(Utils.ALL_CAPS_REGEXP) && inputStringProperties.isCapDIff()) {
+            if (Utils.isUpper(precedingWord) && inputStringProperties.isCapDIff()) {
                 scalar = (currentValence > 0.0) ? scalar + Utils.ALL_CAPS_BOOSTER_SCORE : scalar - Utils.ALL_CAPS_BOOSTER_SCORE;
             }
         }
@@ -57,13 +63,13 @@ public class SentimentAnalyzer {
     private HashMap<String, Float> getSentiment() {
         ArrayList<Float> sentiments = new ArrayList<>();
         ArrayList<String> wordsAndEmoticons = inputStringProperties.getWordsAndEmoticons();
+
         for (String item : wordsAndEmoticons) {
             float currentValence = 0.0f;
             int i = wordsAndEmoticons.indexOf(item);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Current token, \""+ item + "\" with index, i = " + i);
-            }
+            logger.debug("Current token, \""+ item + "\" with index, i = " + i);
+            logger.debug("Sentiment State before \"kind of\" processing: " + sentiments);
 
             if (i < wordsAndEmoticons.size() - 1 &&
                     item.toLowerCase().equals("kind") &&
@@ -73,21 +79,20 @@ public class SentimentAnalyzer {
                 continue;
             }
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Sentiment State after \"kind of\" processing: " + sentiments);
-                logger.debug(String.format("Current Valence is %f for \"%s\"", currentValence, item));
-            }
+            logger.debug("Sentiment State after \"kind of\" processing: " + sentiments);
+            logger.debug(String.format("Current Valence is %f for \"%s\"", currentValence, item));
 
             String currentItemLower = item.toLowerCase();
             if (Utils.WORD_VALENCE_DICTIONARY.containsKey(currentItemLower)) {
                 currentValence = Utils.WORD_VALENCE_DICTIONARY.get(currentItemLower);
-                if (item.matches(Utils.ALL_CAPS_REGEXP) && inputStringProperties.isCapDIff()) {
+
+                logger.debug((Utils.isUpper(item) && inputStringProperties.isCapDIff()) + "\t" + item + "\t" + inputStringProperties.isCapDIff());
+
+                if (Utils.isUpper(item) && inputStringProperties.isCapDIff()) {
                     currentValence = (currentValence > 0.0) ? currentValence + Utils.ALL_CAPS_BOOSTER_SCORE : currentValence - Utils.ALL_CAPS_BOOSTER_SCORE;
                 }
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug(String.format("Current Valence post all CAPS checks: %f", currentValence));
-                }
+                logger.debug(String.format("Current Valence post all CAPS checks: %f", currentValence));
 
                 int startI = 0;
                 float gramBasedValence = 0.0f;
@@ -97,11 +102,10 @@ public class SentimentAnalyzer {
                         closeTokenIndex = pythonIndexToJavaIndex(closeTokenIndex);
 
                     if ((i > startI) && !Utils.WORD_VALENCE_DICTIONARY.containsKey(wordsAndEmoticons.get(closeTokenIndex).toLowerCase())) {
-                        gramBasedValence = valenceModifier(wordsAndEmoticons.get(closeTokenIndex), currentValence);
 
-                        if (logger.isDebugEnabled()) {
-                            logger.debug(String.format("Current Valence post gramBasedValence: %f", currentValence));
-                        }
+                        logger.debug(String.format("Current Valence pre gramBasedValence: %f", currentValence));
+                        gramBasedValence = valenceModifier(wordsAndEmoticons.get(closeTokenIndex), currentValence);
+                        logger.debug(String.format("Current Valence post gramBasedValence: %f", currentValence));
 
                         if (startI == 1 && gramBasedValence != 0.0f)
                             gramBasedValence *= 0.95f;
@@ -109,10 +113,7 @@ public class SentimentAnalyzer {
                             gramBasedValence *= 0.9f;
                         currentValence += gramBasedValence;
 
-                        if (logger.isDebugEnabled()) {
-                            logger.debug(String.format("Current Valence post gramBasedValence and distance boosting: %f", currentValence));
-                        }
-
+                        logger.debug(String.format("Current Valence post gramBasedValence and distance boosting: %f", currentValence));
 
                         if (startI == 0) {
                             if (isNegative(new ArrayList<>(Collections.singletonList(wordsAndEmoticons.get(i - 1))))) {
@@ -236,9 +237,7 @@ public class SentimentAnalyzer {
             for (Float valence : currentSentimentState)
                 totalValence += valence;
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Total valence: " + totalValence);
-            }
+            logger.debug("Total valence: " + totalValence);
 
             float punctuationAmplifier = boostByPunctuation();
             if (totalValence > 0.0f)
@@ -246,11 +245,9 @@ public class SentimentAnalyzer {
             else if (totalValence < 0.0f)
                 totalValence -= boostByPunctuation();
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Total valence after boost/damp by punctuation: " + totalValence);
-            }
+            logger.debug("Total valence after boost/damp by punctuation: " + totalValence);
 
-            final float compoundPolarity = normalizeScore(totalValence);
+            final float compoundPolarity = roundScores(normalizeScore(totalValence), 4);
 
             ArrayList<Float> siftedScores = siftSentimentScores(currentSentimentState);
             float positiveSentimentScore = siftedScores.get(0);
@@ -265,9 +262,9 @@ public class SentimentAnalyzer {
             float normalizationFactor = positiveSentimentScore + Math.abs(negativeSentimentScore)
                     + neutralSentimentCount;
 
-            final float positivePolarity = Math.abs(positiveSentimentScore / normalizationFactor);
-            final float negativePolarity = Math.abs(negativeSentimentScore / normalizationFactor);
-            final float neutralPolarity = Math.abs(neutralSentimentCount / normalizationFactor);
+            final float positivePolarity = roundScores(Math.abs(positiveSentimentScore / normalizationFactor), 3);
+            final float negativePolarity = roundScores(Math.abs(negativeSentimentScore / normalizationFactor), 3);
+            final float neutralPolarity = roundScores(Math.abs(neutralSentimentCount / normalizationFactor), 3);
 
             return new HashMap<String, Float>(){{
                 put("compound", compoundPolarity);
@@ -381,32 +378,20 @@ public class SentimentAnalyzer {
         return (float) normalizedScore;
     }
 
-    public static void main(String[] args) throws IOException {
-        ArrayList<String> sentences = new ArrayList<String>() {{
-            add("VADER is smart, handsome, and funny.");
-            add("VADER is smart, handsome, and funny!");
-            add("VADER is very smart, handsome, and funny.");
-            add("VADER is VERY SMART, handsome, and FUNNY.");
-            add("VADER is VERY SMART, handsome, and FUNNY!!!");
-            add("VADER is VERY SMART, really handsome, and INCREDIBLY FUNNY!!!");
-            add("The book was good.");
-            add("The book was kind of good.");
-            add("The plot was good, but the characters are uncompelling and the dialog is not great.");
-            add("A really bad, horrible book.");
-            add("At least it isn't a horrible book.");
-            add(":) and :D");
-            add("");
-            add("Today sux");
-            add("Today sux!");
-            add("Today SUX!");
-            add("Today kinda sux! But I'll get by, lol");
-        }};
-
-        for (String sentence : sentences) {
-            System.out.println(sentence);
-            SentimentAnalyzer sentimentAnalyzer = new SentimentAnalyzer(sentence);
-            sentimentAnalyzer.analyse();
-            System.out.println(sentimentAnalyzer.getPolarity());
+    private float roundScores(float currentScore, int roundTo) {
+        try {
+            String characteristicPart = "##.";
+            String mantissaPart = "";
+            for (int i = 0; i < roundTo; i++)
+                mantissaPart = mantissaPart.concat("0");
+            DecimalFormat df = new DecimalFormat(characteristicPart + mantissaPart);
+            String formatted = df.format(currentScore);
+            double finalValue = (double) df.parse(formatted);
+            return (float) finalValue;
+        } catch (ParseException e) {
+            return currentScore;
+        } catch (ClassCastException cce) {
+            return currentScore;
         }
     }
 

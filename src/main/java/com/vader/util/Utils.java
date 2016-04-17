@@ -5,8 +5,16 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
+ * This class contains the constants that are the used by the sentiment analyzer.
+ * The constants are same as the ones used in the official python implementation
+ * @see <a href="http://www.nltk.org/_modules/nltk/sentiment/vader.html">NLTK Source</a>
+ * @see <a href="https://github.com/cjhutto/vaderSentiment/blob/master/vaderSentiment/vaderSentiment.py">
+ *     vaderSentiment Python module</a>
+ *
  * @author Animesh Pandey
  *         Created on 4/9/2016.
  */
@@ -27,8 +35,6 @@ public class Utils {
             "without", "wont", "wouldnt", "won't", "wouldn't", "rarely", "seldom", "despite"
     };
 
-    public static String ALL_CAPS_REGEXP = "\\b[A-Z\\s]+\\b";
-
     public static ArrayList<String> PUNCTUATION_LIST = new ArrayList<>(Arrays.asList(PUNCTUATION_LIST_array));
     public static ArrayList<String> NEGATIVE_WORDS = new ArrayList<>(Arrays.asList(NEGATIVE_WORDS_array));
 
@@ -36,11 +42,9 @@ public class Utils {
     private static Float DAMPENER_WORD_DECREMENT = -0.293f;
 
     public static Float ALL_CAPS_BOOSTER_SCORE = 0.733f;
-    public static Float EXCLAMATION_MARK_SCORE_AMPLIFIER = 0.292f;
-    public static Float QUESTION_MARK_SCORE_AMPLIFIER = 0.18f;
     public static Float N_SCALAR = -0.74f;
     public static Float EXCLAMATION_BOOST = 0.292f;
-    public static Float QUESTION_BOOST_COUNT_3 = 0.292f;
+    public static Float QUESTION_BOOST_COUNT_3 = 0.18f;
     public static Float QUESTION_BOOST = 0.96f;
 
 
@@ -112,6 +116,15 @@ public class Utils {
         put("slightly", Utils.DAMPENER_WORD_DECREMENT);
         put("effing", Utils.BOOSTER_WORD_INCREMENT);
     }};
+
+    public static boolean isUpper(String token) {
+        if (token.startsWith("http://")) {
+            return false;
+        }
+        Pattern p = Pattern.compile("\\b[\\p{Upper}\\p{Space}\\p{Punct}]+\\b");
+        Matcher m = p.matcher(token);
+        return m.find();
+    }
 
     public static HashMap<String, Float> SENTIMENT_LADEN_IDIOMS = new HashMap<String, Float>() {{
         put("cut the mustard", 2f);
