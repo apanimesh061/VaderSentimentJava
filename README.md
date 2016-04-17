@@ -3,6 +3,13 @@
 
 VADER (Valence Aware Dictionary and sEntiment Reasoner) is a lexicon and rule-based sentiment analysis tool that is _specifically attuned to sentiments expressed in social media_. It is fully open-sourced under the [MIT License](http://choosealicense.com/) (we sincerely appreciate all attributions and readily accept most contributions, but please don't hold us liable).
 
+This is a JAVA port of the NLTK VADER sentiment analysis originally written in Python.
+
+ - The [Original](https://github.com/cjhutto/vaderSentiment) python module by the paper's author C.J. Hutto
+ - The [NLTK](http://www.nltk.org/_modules/nltk/sentiment/vader.html) source
+
+For the testing I have compared the results of the NLTK module with this Java port.
+
 =======
 
 ###Introduction
