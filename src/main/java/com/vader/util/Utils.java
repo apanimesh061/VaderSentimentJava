@@ -137,10 +137,10 @@ public class Utils {
     }};
 
     private static HashMap<String, Float> getWordValenceDictionary(String filename) {
-        URL lexFile = loader.getResource(filename);
+        InputStream lexFile = loader.getResourceAsStream(filename);
         HashMap<String, Float> lexDictionary = new HashMap<>();
         if (lexFile != null) {
-            try(BufferedReader br = new BufferedReader(new FileReader(lexFile.getFile()))) {
+            try(BufferedReader br = new BufferedReader(new InputStreamReader(lexFile))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     String[] lexFileData = line.split("\\t");
@@ -148,6 +148,7 @@ public class Utils {
                     Float currentTextValence = Float.parseFloat(lexFileData[1]);
                     lexDictionary.put(currentText, currentTextValence);
                 }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
