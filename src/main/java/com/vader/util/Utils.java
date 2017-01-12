@@ -1,7 +1,8 @@
 package com.vader.util;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.io.*;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,20 +12,20 @@ import java.util.regex.Pattern;
 /**
  * This class contains the constants that are the used by the sentiment analyzer.
  * The constants are same as the ones used in the official python implementation
- * @see <a href="http://www.nltk.org/_modules/nltk/sentiment/vader.html">NLTK Source</a>
- * @see <a href="https://github.com/cjhutto/vaderSentiment/blob/master/vaderSentiment/vaderSentiment.py">
- *     vaderSentiment Python module</a>
  *
  * @author Animesh Pandey
  *         Created on 4/9/2016.
+ * @see <a href="http://www.nltk.org/_modules/nltk/sentiment/vader.html">NLTK Source</a>
+ * @see <a href="https://github.com/cjhutto/vaderSentiment/blob/master/vaderSentiment/vaderSentiment.py">
+ * vaderSentiment Python module</a>
  */
 public class Utils {
-
     private static final ClassLoader loader = Utils.class.getClassLoader();
 
     private static final String[] PUNCTUATION_LIST_array = {
             ".", "!", "?", ",", ";", ":", "-", "'", "\"", "!!", "!!!", "??", "???", "?!?", "!?!", "?!?!", "!?!?"
     };
+
     private static final String[] NEGATIVE_WORDS_array = {"aint", "arent", "cannot", "cant", "couldnt", "darent",
             "didnt", "doesnt", "ain't", "aren't", "can't", "couldn't", "daren't", "didn't", "doesn't",
             "dont", "hadnt", "hasnt", "havent", "isnt", "mightnt", "mustnt", "neither",
@@ -38,8 +39,8 @@ public class Utils {
     public static ArrayList<String> PUNCTUATION_LIST = new ArrayList<>(Arrays.asList(PUNCTUATION_LIST_array));
     public static ArrayList<String> NEGATIVE_WORDS = new ArrayList<>(Arrays.asList(NEGATIVE_WORDS_array));
 
-    private static Float BOOSTER_WORD_INCREMENT = 0.293f;
-    private static Float DAMPENER_WORD_DECREMENT = -0.293f;
+    public static Float BOOSTER_WORD_INCREMENT = 0.293f;
+    public static Float DAMPENER_WORD_DECREMENT = -0.293f;
 
     public static Float ALL_CAPS_BOOSTER_SCORE = 0.733f;
     public static Float N_SCALAR = -0.74f;
@@ -47,100 +48,114 @@ public class Utils {
     public static Float QUESTION_BOOST_COUNT_3 = 0.18f;
     public static Float QUESTION_BOOST = 0.96f;
 
+    public static HashMap<String, Float> BOOSTER_DICTIONARY = new HashMap<>();
 
-    public static HashMap<String, Float> BOOSTER_DICTIONARY = new HashMap<String, Float>() {{
-        put("decidedly", Utils.BOOSTER_WORD_INCREMENT);
-        put("uber", Utils.BOOSTER_WORD_INCREMENT);
-        put("barely", Utils.DAMPENER_WORD_DECREMENT);
-        put("particularly", Utils.BOOSTER_WORD_INCREMENT);
-        put("enormously", Utils.BOOSTER_WORD_INCREMENT);
-        put("less", Utils.DAMPENER_WORD_DECREMENT);
-        put("absolutely", Utils.BOOSTER_WORD_INCREMENT);
-        put("kinda", Utils.DAMPENER_WORD_DECREMENT);
-        put("flipping", Utils.BOOSTER_WORD_INCREMENT);
-        put("awfully", Utils.BOOSTER_WORD_INCREMENT);
-        put("purely", Utils.BOOSTER_WORD_INCREMENT);
-        put("majorly", Utils.BOOSTER_WORD_INCREMENT);
-        put("substantially", Utils.BOOSTER_WORD_INCREMENT);
-        put("partly", Utils.DAMPENER_WORD_DECREMENT);
-        put("remarkably", Utils.BOOSTER_WORD_INCREMENT);
-        put("really", Utils.BOOSTER_WORD_INCREMENT);
-        put("sort of", Utils.DAMPENER_WORD_DECREMENT);
-        put("little", Utils.DAMPENER_WORD_DECREMENT);
-        put("fricking", Utils.BOOSTER_WORD_INCREMENT);
-        put("sorta", Utils.DAMPENER_WORD_DECREMENT);
-        put("amazingly", Utils.BOOSTER_WORD_INCREMENT);
-        put("kind of", Utils.DAMPENER_WORD_DECREMENT);
-        put("just enough", Utils.DAMPENER_WORD_DECREMENT);
-        put("fucking", Utils.BOOSTER_WORD_INCREMENT);
-        put("occasionally", Utils.DAMPENER_WORD_DECREMENT);
-        put("somewhat", Utils.DAMPENER_WORD_DECREMENT);
-        put("kindof", Utils.DAMPENER_WORD_DECREMENT);
-        put("friggin", Utils.BOOSTER_WORD_INCREMENT);
-        put("incredibly", Utils.BOOSTER_WORD_INCREMENT);
-        put("totally", Utils.BOOSTER_WORD_INCREMENT);
-        put("marginally", Utils.DAMPENER_WORD_DECREMENT);
-        put("more", Utils.BOOSTER_WORD_INCREMENT);
-        put("considerably", Utils.BOOSTER_WORD_INCREMENT);
-        put("fabulously", Utils.BOOSTER_WORD_INCREMENT);
-        put("sort of", Utils.DAMPENER_WORD_DECREMENT);
-        put("hardly", Utils.DAMPENER_WORD_DECREMENT);
-        put("very", Utils.BOOSTER_WORD_INCREMENT);
-        put("sortof", Utils.DAMPENER_WORD_DECREMENT);
-        put("kind-of", Utils.DAMPENER_WORD_DECREMENT);
-        put("scarcely", Utils.DAMPENER_WORD_DECREMENT);
-        put("thoroughly", Utils.BOOSTER_WORD_INCREMENT);
-        put("quite", Utils.BOOSTER_WORD_INCREMENT);
-        put("most", Utils.BOOSTER_WORD_INCREMENT);
-        put("completely", Utils.BOOSTER_WORD_INCREMENT);
-        put("frigging", Utils.BOOSTER_WORD_INCREMENT);
-        put("intensely", Utils.BOOSTER_WORD_INCREMENT);
-        put("utterly", Utils.BOOSTER_WORD_INCREMENT);
-        put("highly", Utils.BOOSTER_WORD_INCREMENT);
-        put("extremely", Utils.BOOSTER_WORD_INCREMENT);
-        put("unbelievably", Utils.BOOSTER_WORD_INCREMENT);
-        put("almost", Utils.DAMPENER_WORD_DECREMENT);
-        put("especially", Utils.BOOSTER_WORD_INCREMENT);
-        put("fully", Utils.BOOSTER_WORD_INCREMENT);
-        put("frickin", Utils.BOOSTER_WORD_INCREMENT);
-        put("tremendously", Utils.BOOSTER_WORD_INCREMENT);
-        put("exceptionally", Utils.BOOSTER_WORD_INCREMENT);
-        put("flippin", Utils.BOOSTER_WORD_INCREMENT);
-        put("hella", Utils.BOOSTER_WORD_INCREMENT);
-        put("so", Utils.BOOSTER_WORD_INCREMENT);
-        put("greatly", Utils.BOOSTER_WORD_INCREMENT);
-        put("hugely", Utils.BOOSTER_WORD_INCREMENT);
-        put("deeply", Utils.BOOSTER_WORD_INCREMENT);
-        put("unusually", Utils.BOOSTER_WORD_INCREMENT);
-        put("entirely", Utils.BOOSTER_WORD_INCREMENT);
-        put("slightly", Utils.DAMPENER_WORD_DECREMENT);
-        put("effing", Utils.BOOSTER_WORD_INCREMENT);
-    }};
+    static {
+        BOOSTER_DICTIONARY.put("decidedly", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("uber", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("barely", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("particularly", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("enormously", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("less", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("absolutely", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("kinda", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("flipping", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("awfully", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("purely", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("majorly", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("substantially", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("partly", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("remarkably", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("really", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("sort of", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("little", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("fricking", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("sorta", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("amazingly", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("kind of", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("just enough", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("fucking", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("occasionally", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("somewhat", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("kindof", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("friggin", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("incredibly", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("totally", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("marginally", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("more", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("considerably", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("fabulously", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("sort of", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("hardly", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("very", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("sortof", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("kind-of", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("scarcely", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("thoroughly", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("quite", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("most", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("completely", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("frigging", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("intensely", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("utterly", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("highly", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("extremely", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("unbelievably", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("almost", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("especially", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("fully", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("frickin", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("tremendously", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("exceptionally", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("flippin", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("hella", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("so", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("greatly", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("hugely", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("deeply", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("unusually", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("entirely", BOOSTER_WORD_INCREMENT);
+        BOOSTER_DICTIONARY.put("slightly", DAMPENER_WORD_DECREMENT);
+        BOOSTER_DICTIONARY.put("effing", BOOSTER_WORD_INCREMENT);
+    }
 
     public static boolean isUpper(String token) {
-        if (token.startsWith("http://")) {
+        if (token.toLowerCase().startsWith("http://"))
             return false;
+        if (!token.matches(".*[a-zA-Z]+.*"))
+            return false;
+        for (int i = 0; i < token.length(); i++) {
+            if (Character.isLowerCase(token.charAt(i)))
+                return false;
         }
+        return true;
+    }
+
+    public static boolean isUpper2(String token) {
+        if (token.startsWith("http://"))
+            return false;
         Pattern p = Pattern.compile("\\b[\\p{Upper}\\p{Space}\\p{Punct}]+\\b");
         Matcher m = p.matcher(token);
         return m.find();
     }
 
-    public static HashMap<String, Float> SENTIMENT_LADEN_IDIOMS = new HashMap<String, Float>() {{
-        put("cut the mustard", 2f);
-        put("bad ass", 1.5f);
-        put("kiss of death", -1.5f);
-        put("yeah right", -2f);
-        put("the bomb", 3f);
-        put("hand to mouth", -2f);
-        put("the shit", 3f);
-    }};
+    public static HashMap<String, Float> SENTIMENT_LADEN_IDIOMS = new HashMap<>();
+
+    static {
+        SENTIMENT_LADEN_IDIOMS.put("cut the mustard", 2f);
+        SENTIMENT_LADEN_IDIOMS.put("bad ass", 1.5f);
+        SENTIMENT_LADEN_IDIOMS.put("kiss of death", -1.5f);
+        SENTIMENT_LADEN_IDIOMS.put("yeah right", -2f);
+        SENTIMENT_LADEN_IDIOMS.put("the bomb", 3f);
+        SENTIMENT_LADEN_IDIOMS.put("hand to mouth", -2f);
+        SENTIMENT_LADEN_IDIOMS.put("the shit", 3f);
+    }
 
     private static HashMap<String, Float> getWordValenceDictionary(String filename) {
         InputStream lexFile = loader.getResourceAsStream(filename);
         HashMap<String, Float> lexDictionary = new HashMap<>();
         if (lexFile != null) {
-            try(BufferedReader br = new BufferedReader(new InputStreamReader(lexFile))) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(lexFile))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     String[] lexFileData = line.split("\\t");
@@ -148,7 +163,6 @@ public class Utils {
                     Float currentTextValence = Float.parseFloat(lexFileData[1]);
                     lexDictionary.put(currentText, currentTextValence);
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -157,5 +171,4 @@ public class Utils {
     }
 
     public static HashMap<String, Float> WORD_VALENCE_DICTIONARY = getWordValenceDictionary("vader_sentiment_lexicon.txt");
-
 }

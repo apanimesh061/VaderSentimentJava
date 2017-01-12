@@ -1,6 +1,7 @@
 package com.vader.analyzer;
 
 import com.vader.util.Utils;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,12 +10,13 @@ import java.util.Collections;
 /**
  * The TextProperties class implements the pre-processing steps of the input string for sentiment analysis.
  * It utilizes the Lucene analyzers
- * @see com.vader.analyzer.VaderLuceneAnalyzer
  *
  * @author Animesh Pandey
  *         Created on 4/10/2016.
+ * @see com.vader.analyzer.VaderLuceneAnalyzer
  */
 public class TextProperties {
+    private static Logger logger = Logger.getLogger(TextProperties.class);
 
     private String inputText;
     private ArrayList<String> wordsAndEmoticons;
@@ -23,9 +25,9 @@ public class TextProperties {
 
     /**
      * This method tokenizes the input string, preserving the punctuation marks using
-     * @see com.vader.analyzer.VaderLuceneAnalyzer#defaultSplit(String)
      *
      * @throws IOException
+     * @see com.vader.analyzer.VaderLuceneAnalyzer#defaultSplit(String)
      */
     private void setWordsAndEmoticons() throws IOException {
         setWordsOnly();
@@ -57,10 +59,10 @@ public class TextProperties {
 
     /**
      * This method tokenizes the input string, removing the special characters as well
-     * @see com.vader.analyzer.VaderLuceneAnalyzer#removePunctuation(String)
-     * This helps get the actual number of tokens in the input string
      *
      * @throws IOException
+     * @see com.vader.analyzer.VaderLuceneAnalyzer#removePunctuation(String)
+     * This helps get the actual number of tokens in the input string
      */
     private void setWordsOnly() throws IOException {
         this.wordsOnly = new VaderLuceneAnalyzer().removePunctuation(inputText);
@@ -72,16 +74,19 @@ public class TextProperties {
 
     /**
      * @return True iff the the tokens have yelling words i.e. all caps in the tokens
-     *         e.g. [GET, THE, HELL, OUT] returns false
-     *              [GET, the, HELL, OUT] returns true
-     *              [get, the, hell, out] returns false
+     * e.g. [GET, THE, HELL, OUT] returns false
+     * [GET, the, HELL, OUT] returns true
+     * [get, the, hell, out] returns false
      */
     private boolean isAllCapDifferential() {
         int countAllCaps = 0;
-        for (String s : wordsAndEmoticons)
+        for (String s : wordsAndEmoticons) {
+            logger.debug(s + "\t" + Utils.isUpper(s));
             if (Utils.isUpper(s))
-                countAllCaps += 1;
+                countAllCaps++;
+        }
         int capDifferential = wordsAndEmoticons.size() - countAllCaps;
+        logger.debug(wordsAndEmoticons.size() + "\t" + capDifferential + "\t" + countAllCaps);
         return (0 < capDifferential) && (capDifferential < wordsAndEmoticons.size());
     }
 
