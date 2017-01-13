@@ -7,9 +7,6 @@ import org.apache.log4j.Logger;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.IOException;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -51,9 +48,8 @@ public class SentimentAnalyzer {
             scalar = Utils.BOOSTER_DICTIONARY.get(precedingWordLower);
             if (currentValence < 0.0)
                 scalar *= -1.0;
-            if (Utils.isUpper(precedingWord) && inputStringProperties.isCapDIff()) {
+            if (Utils.isUpper(precedingWord) && inputStringProperties.isCapDIff())
                 scalar = (currentValence > 0.0) ? scalar + Utils.ALL_CAPS_BOOSTER_SCORE : scalar - Utils.ALL_CAPS_BOOSTER_SCORE;
-            }
         }
         return scalar;
     }
@@ -74,8 +70,7 @@ public class SentimentAnalyzer {
         if (startI == 1) {
             String wordAtDistanceTwoLeft = wordsAndEmoticons.get(i - 2);
             String wordAtDistanceOneLeft = wordsAndEmoticons.get(i - 1);
-            if ((wordAtDistanceTwoLeft.equals("never")) &&
-                    (wordAtDistanceOneLeft.equals("so") || (wordAtDistanceOneLeft.equals("this")))) {
+            if ((wordAtDistanceTwoLeft.equals("never")) && (wordAtDistanceOneLeft.equals("so") || (wordAtDistanceOneLeft.equals("this")))) {
                 currentValence *= 1.5f;
             } else if (isNegative(new ArrayList<>(Collections.singletonList(wordsAndEmoticons.get(closeTokenIndex))))) {
                 currentValence *= Utils.N_SCALAR;
@@ -248,7 +243,10 @@ public class SentimentAnalyzer {
                 neutralSentimentCount += 1;
         }
         return new ArrayList<>(Arrays.asList(
-                positiveSentimentScore, negativeSentimentScore, (float) neutralSentimentCount));
+                positiveSentimentScore,
+                negativeSentimentScore,
+                (float) neutralSentimentCount)
+        );
     }
 
     private HashMap<String, Float> polarityScores(ArrayList<Float> currentSentimentState) {
@@ -269,7 +267,7 @@ public class SentimentAnalyzer {
 
             float compoundPolarity = normalizeScore(totalValence);
 
-            logger.debug(currentSentimentState);
+            logger.debug("Final token-wise sentiment state: " + currentSentimentState);
 
             ArrayList<Float> siftedScores = siftSentimentScores(currentSentimentState);
             float positiveSentimentScore = siftedScores.get(0);
@@ -288,16 +286,24 @@ public class SentimentAnalyzer {
 
             logger.debug("Normalization Factor: " + normalizationFactor);
 
+            logger.debug(String.format("Pre-Normalized Scores: %s %s %s %s",
+                    Math.abs(positiveSentimentScore),
+                    Math.abs(negativeSentimentScore),
+                    Math.abs(neutralSentimentCount),
+                    compoundPolarity
+            ));
+
             logger.debug(String.format("Pre-Round Scores: %s %s %s %s",
                     Math.abs(positiveSentimentScore / normalizationFactor),
                     Math.abs(negativeSentimentScore / normalizationFactor),
                     Math.abs(neutralSentimentCount / normalizationFactor),
-                    compoundPolarity));
+                    compoundPolarity
+            ));
 
-            final float normalizedPositivePolarity = roundScores(Math.abs(positiveSentimentScore / normalizationFactor), 3);
-            final float normalizedNegativePolarity = roundScores(Math.abs(negativeSentimentScore / normalizationFactor), 3);
-            final float normalizedNeutralPolarity = roundScores(Math.abs(neutralSentimentCount / normalizationFactor), 3);
-            final float normalizedCompoundPolarity = roundScores(compoundPolarity, 4);
+            final float normalizedPositivePolarity = roundDecimal(Math.abs(positiveSentimentScore / normalizationFactor), 3);
+            final float normalizedNegativePolarity = roundDecimal(Math.abs(negativeSentimentScore / normalizationFactor), 3);
+            final float normalizedNeutralPolarity = roundDecimal(Math.abs(neutralSentimentCount / normalizationFactor), 3);
+            final float normalizedCompoundPolarity = roundDecimal(compoundPolarity, 4);
 
             return new HashMap<String, Float>() {{
                 put("compound", normalizedCompoundPolarity);
@@ -381,7 +387,8 @@ public class SentimentAnalyzer {
     private boolean isNegative(ArrayList<String> tokenList, ArrayList<String> newNegWords, boolean checkContractions) {
         newNegWords.addAll(Utils.NEGATIVE_WORDS);
         boolean result = hasNegativeWord(tokenList, newNegWords) || hasAtLeast(tokenList);
-        if (checkContractions) return result;
+        if (checkContractions)
+            return result;
         return result || hasContraction(tokenList);
     }
 
@@ -394,34 +401,19 @@ public class SentimentAnalyzer {
         return hasNegativeWord(tokenList, Utils.NEGATIVE_WORDS) || hasAtLeast(tokenList) || hasContraction(tokenList);
     }
 
-    private Float normalizeScore(Float score, Float alpha) {
-        double normalizedScore = score / Math.sqrt((score.doubleValue() * score.doubleValue()) + alpha.doubleValue());
+    private float normalizeScore(float score, float alpha) {
+        double normalizedScore = score / Math.sqrt((score * score) + alpha);
         return (float) normalizedScore;
     }
 
-    private Float normalizeScore(Float score) {
-        double normalizedScore = score / Math.sqrt((score.doubleValue() * score.doubleValue()) + 15.0);
+    private float normalizeScore(float score) {
+        double normalizedScore = score / Math.sqrt((score * score) + 15.0f);
         return (float) normalizedScore;
     }
 
-    private static float roundScores(float currentScore, int roundTo) {
-        try {
-            String characteristicPart = "##.";
-            String mantissaPart = "";
-            for (int i = 0; i < roundTo; i++)
-                mantissaPart = mantissaPart.concat("0");
-            DecimalFormat df = new DecimalFormat(characteristicPart + mantissaPart);
-            String formatted = df.format(currentScore);
-            double finalValue = (double) df.parse(formatted);
-            return (float) finalValue;
-        } catch (ParseException e) {
-            return currentScore;
-        } catch (ClassCastException cce) {
-            return currentScore;
-        }
-    }
-
-    public static void main(String[] args) {
-        System.out.println(roundScores(0.3125f, 3));
+    private static float roundDecimal(float currentValue, int roundTo) {
+        float n = (float) Math.pow(10.0, (double) roundTo);
+        float number = Math.round(currentValue * n);
+        return number / n;
     }
 }
