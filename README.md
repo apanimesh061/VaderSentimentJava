@@ -14,6 +14,17 @@ For the testing I have compared the results of the NLTK module with this Java po
 
 =======
 
+###Update (Jan 2017)
+I have corrected a few bugs that I encountered when I was adding more tests.
+
+The details are [here](https://github.com/apanimesh061/VaderSentimentJava/commit/d1d30c4ceeb356ec838f8abac70514bd21a92b4b).
+
+This project now includes tests on text from:
+
+1. Amazon Reviews
+2. Movie Reviews
+3. NyTimes Editorial snippets
+
 ###Introduction
 
 This README file describes the dataset of the paper:
