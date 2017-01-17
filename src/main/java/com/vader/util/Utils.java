@@ -119,26 +119,6 @@ public class Utils {
         BOOSTER_DICTIONARY.put("effing", BOOSTER_WORD_INCREMENT);
     }
 
-    public static boolean isUpper(String token) {
-        if (token.toLowerCase().startsWith("http://"))
-            return false;
-        if (!token.matches(".*[a-zA-Z]+.*"))
-            return false;
-        for (int i = 0; i < token.length(); i++) {
-            if (Character.isLowerCase(token.charAt(i)))
-                return false;
-        }
-        return true;
-    }
-
-    public static boolean isUpper2(String token) {
-        if (token.startsWith("http://"))
-            return false;
-        Pattern p = Pattern.compile("\\b[\\p{Upper}\\p{Space}\\p{Punct}]+\\b");
-        Matcher m = p.matcher(token);
-        return m.find();
-    }
-
     public static HashMap<String, Float> SENTIMENT_LADEN_IDIOMS = new HashMap<>();
 
     static {
@@ -149,6 +129,20 @@ public class Utils {
         SENTIMENT_LADEN_IDIOMS.put("the bomb", 3f);
         SENTIMENT_LADEN_IDIOMS.put("hand to mouth", -2f);
         SENTIMENT_LADEN_IDIOMS.put("the shit", 3f);
+    }
+
+    public static HashMap<String, Float> WORD_VALENCE_DICTIONARY = getWordValenceDictionary("vader_sentiment_lexicon.txt");
+
+    public static boolean isUpper(String token) {
+        if (token.toLowerCase().startsWith("http://"))
+            return false;
+        if (!token.matches(".*[a-zA-Z]+.*"))
+            return false;
+        for (int i = 0; i < token.length(); i++) {
+            if (Character.isLowerCase(token.charAt(i)))
+                return false;
+        }
+        return true;
     }
 
     private static HashMap<String, Float> getWordValenceDictionary(String filename) {
@@ -169,6 +163,4 @@ public class Utils {
         }
         return lexDictionary;
     }
-
-    public static HashMap<String, Float> WORD_VALENCE_DICTIONARY = getWordValenceDictionary("vader_sentiment_lexicon.txt");
 }
