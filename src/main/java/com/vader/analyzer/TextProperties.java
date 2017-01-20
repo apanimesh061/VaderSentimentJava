@@ -112,5 +112,4 @@ public class TextProperties {
         TextProperties t = new TextProperties("Going to brave the rainy Walt Disney World day to find some fun.  Hopefully some dry fun. LOL");
         System.out.println(t.isCapDIff());
     }
-
 }

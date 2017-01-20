@@ -1,13 +1,9 @@
 package com.vader.util;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * This class contains the constants that are the used by the sentiment analyzer.
@@ -39,14 +35,14 @@ public class Utils {
     public static ArrayList<String> PUNCTUATION_LIST = new ArrayList<>(Arrays.asList(PUNCTUATION_LIST_array));
     public static ArrayList<String> NEGATIVE_WORDS = new ArrayList<>(Arrays.asList(NEGATIVE_WORDS_array));
 
-    public static Float BOOSTER_WORD_INCREMENT = 0.293f;
-    public static Float DAMPENER_WORD_DECREMENT = -0.293f;
+    public static float BOOSTER_WORD_INCREMENT = 0.293f;
+    public static float DAMPENER_WORD_DECREMENT = -0.293f;
 
-    public static Float ALL_CAPS_BOOSTER_SCORE = 0.733f;
-    public static Float N_SCALAR = -0.74f;
-    public static Float EXCLAMATION_BOOST = 0.292f;
-    public static Float QUESTION_BOOST_COUNT_3 = 0.18f;
-    public static Float QUESTION_BOOST = 0.96f;
+    public static float ALL_CAPS_BOOSTER_SCORE = 0.733f;
+    public static float N_SCALAR = -0.74f;
+    public static float EXCLAMATION_BOOST = 0.292f;
+    public static float QUESTION_BOOST_COUNT_3 = 0.18f;
+    public static float QUESTION_BOOST = 0.96f;
 
     public static HashMap<String, Float> BOOSTER_DICTIONARY = new HashMap<>();
 

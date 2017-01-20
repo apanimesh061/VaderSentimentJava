@@ -203,15 +203,10 @@ public class SentimentAnalyzer {
                     startI++;
                 }
 
-                if (i > 1 &&
-                        !Utils.WORD_VALENCE_DICTIONARY.containsKey(wordsAndEmoticons.get(i - 1).toLowerCase()) &&
-                        wordsAndEmoticons.get(i - 1).toLowerCase().equals("least")) {
-                    if (!wordsAndEmoticons.get(i - 2).toLowerCase().equals("at") &&
-                            !wordsAndEmoticons.get(i - 2).toLowerCase().equals("very"))
+                if (i > 1 && !Utils.WORD_VALENCE_DICTIONARY.containsKey(wordsAndEmoticons.get(i - 1).toLowerCase()) && wordsAndEmoticons.get(i - 1).toLowerCase().equals("least")) {
+                    if (!(wordsAndEmoticons.get(i - 2).toLowerCase().equals("at") || wordsAndEmoticons.get(i - 2).toLowerCase().equals("very")))
                         currentValence *= Utils.N_SCALAR;
-                } else if (i > 0 &&
-                        !Utils.WORD_VALENCE_DICTIONARY.containsKey(wordsAndEmoticons.get(i - 1).toLowerCase()) &&
-                        wordsAndEmoticons.get(i - 1).equals("least")) {
+                } else if (i > 0 && !Utils.WORD_VALENCE_DICTIONARY.containsKey(wordsAndEmoticons.get(i - 1).toLowerCase()) && wordsAndEmoticons.get(i - 1).equals("least")) {
                     currentValence *= Utils.N_SCALAR;
                 }
             }
@@ -328,17 +323,14 @@ public class SentimentAnalyzer {
 
     private float boostByExclamation() {
         int exclamationCount = StringUtils.countMatches(inputString, "!");
-        if (exclamationCount > 4)
-            exclamationCount = 4;
-        return exclamationCount * Utils.EXCLAMATION_BOOST;
+        return Math.min(exclamationCount, 4) * Utils.EXCLAMATION_BOOST;
     }
 
     private float boostByQuestionMark() {
         int questionMarkCount = StringUtils.countMatches(inputString, "?");
         float questionMarkAmplifier = 0.0f;
         if (questionMarkCount > 1)
-            questionMarkAmplifier =
-                    (questionMarkCount <= 3) ? questionMarkCount * Utils.QUESTION_BOOST_COUNT_3 : Utils.QUESTION_BOOST;
+            questionMarkAmplifier = (questionMarkCount <= 3) ? questionMarkCount * Utils.QUESTION_BOOST_COUNT_3 : Utils.QUESTION_BOOST;
         return questionMarkAmplifier;
     }
 
