@@ -49,16 +49,32 @@ public class TestNLTKTweets {
                     float actualNeutralScore = inputStringPolarity.get("neutral");
                     float actualCompoundScore = inputStringPolarity.get("compound");
 
-                    Assert.assertFalse(error(actualNegativeScore, expectedNegativeScore));
-                    Assert.assertFalse(error(actualPositiveScore, expectedPositiveScore));
-                    Assert.assertFalse(error(actualNeutralScore, expectedNeutralScore));
-                    Assert.assertFalse(error(actualCompoundScore, expectedCompoundScore));
+                    Assert.assertFalse(
+                            getErrorMessage(inputString, actualNegativeScore, expectedNegativeScore, "Negative Score"),
+                            error(actualNegativeScore, expectedNegativeScore)
+                    );
+                    Assert.assertFalse(
+                            getErrorMessage(inputString, actualPositiveScore, expectedPositiveScore, "Positive Score"),
+                            error(actualPositiveScore, expectedPositiveScore)
+                    );
+                    Assert.assertFalse(
+                            getErrorMessage(inputString, actualNeutralScore, expectedNeutralScore, "Neutral Score"),
+                            error(actualNeutralScore, expectedNeutralScore)
+                    );
+                    Assert.assertFalse(
+                            getErrorMessage(inputString, actualCompoundScore, expectedCompoundScore, "Compound Score"),
+                            error(actualCompoundScore, expectedCompoundScore)
+                    );
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
             System.out.println("Test Passed for " + fileName);
         }
+    }
+
+    private String getErrorMessage(String message, float actual, float expected, String type) {
+        return String.format("Test String: %s ==> %s (actual = %s, expectd = %s)", message, type, actual, expected);
     }
 
     private int noOfDecimalDigits(float value) {
