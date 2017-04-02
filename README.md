@@ -1,5 +1,4 @@
 ## VADER-Sentiment-Analysis in Java
-===================================
 
 [![Build Status](https://travis-ci.org/apanimesh061/VaderSentimentJava.svg?branch=master)](https://travis-ci.org/apanimesh061/VaderSentimentJava)
 
@@ -12,9 +11,9 @@ This is a JAVA port of the NLTK VADER sentiment analysis originally written in P
 
 For the testing I have compared the results of the NLTK module with this Java port.
 
-=======
-
 ###Update (Jan 2017)
+- - -
+
 I have corrected a few bugs that I encountered when I was adding more tests.
 
 The details are [here](https://github.com/apanimesh061/VaderSentimentJava/commit/d1d30c4ceeb356ec838f8abac70514bd21a92b4b).
@@ -26,6 +25,7 @@ This project now includes tests on text from:
 3. NyTimes Editorial snippets
 
 ###Introduction
+- - -
 
 This README file describes the dataset of the paper:
 
@@ -39,18 +39,15 @@ C.J. Hutto <br />
 Georgia Institute of Technology, Atlanta, GA 30032  <br />
 cjhutto [at] gatech [dot] edu <br />
 
-=======
-
 ###Citation Information
+- - -
 
 If you use either the dataset or any of the VADER sentiment analysis tools (VADER sentiment lexicon or Python code for rule-based sentiment analysis engine) in your research, please cite the above paper. For example:  <br />
 
   > <small> **Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. Eighth International Conference on Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014.** </small><br />
 
-=======
-
-
 ###Resources and Dataset Descriptions
+- - -
 
 The compressed .tar.gz package includes **PRIMARY RESOURCES** (items 1-3) as well as additional **DATASETS AND TESTING RESOURCES** (items 4-12):
 
@@ -148,8 +145,8 @@ The compressed .tar.gz package includes **PRIMARY RESOURCES** (items 1-3) as wel
      A short-cut hyperlinked to the online (web-based) sentiment comparison using a "light" version of VADER. http://www.socialai.gatech.edu/apps/sentiment.html .
 
 
-=======
 ##Java Code EXAMPLE:
+
 ```
 public static void main(String[] args) throws IOException {
     ArrayList<String> sentences = new ArrayList<String>() {{
@@ -180,10 +177,7 @@ public static void main(String[] args) throws IOException {
     }
 }
 ```
-=======
 
 ###Online (web-based) Sentiment Comparison using VADER
 
-     http://www.socialai.gatech.edu/apps/sentiment.html .
-
-=======
+http://www.socialai.gatech.edu/apps/sentiment.html .
