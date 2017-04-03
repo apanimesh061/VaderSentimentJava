@@ -139,9 +139,8 @@ The compressed .tar.gz package includes **PRIMARY RESOURCES** (items 1-3) as wel
 	 FORMAT: the file is tab delimited with ID, MEAN-SENTIMENT-RATING, STANDARD DEVIATION, and RAW-SENTIMENT-RATINGS <br />
      DESCRIPTION: Sentiment ratings from a minimum of 20 independent human raters (all pre-screened, trained, and quality checked for optimal inter-rater reliability).
 
- <br />
-12. Comp.Social website with more papers/research: <br />
-	 [Comp.Social](http://comp.social.gatech.edu/papers/)
+12. Comp.Social website with more papers/research: [Comp.Social](http://comp.social.gatech.edu/papers/)
+	 
 13. vader_sentiment_comparison_online_weblink <br />
      A short-cut hyperlinked to the online (web-based) sentiment comparison using a "light" version of VADER. http://www.socialai.gatech.edu/apps/sentiment.html .
 
