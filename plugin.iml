@@ -5,7 +5,7 @@
       <configuration sdkName="Python 2.7.11 (E:\Miniconda2\python.exe)" />
     </facet>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="false">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
@@ -18,12 +18,12 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-analyzers-common:5.5.0" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-core:5.5.0" level="project" />
+    <orderEntry type="library" name="Python 2.7.11 (E:\Miniconda2\python.exe) interpreter library" level="application" />
+    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-analyzers-common:6.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.lucene:lucene-core:6.0.0" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
     <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
     <orderEntry type="library" name="Maven: junit:junit:4.12" level="project" />
     <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
-    <orderEntry type="library" name="Python 2.7.11 (E:\Miniconda2\python.exe) interpreter library" level="application" />
   </component>
 </module>

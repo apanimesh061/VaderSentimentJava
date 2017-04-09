@@ -59,3 +59,6 @@ fabric.properties
 
 target
 .idea
+
+*.iml
+plugin.iml
