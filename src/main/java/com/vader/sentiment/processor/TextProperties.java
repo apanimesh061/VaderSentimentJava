@@ -81,12 +81,10 @@ public class TextProperties {
     private boolean isAllCapDifferential() {
         int countAllCaps = 0;
         for (String s : wordsAndEmoticons) {
-            logger.debug(s + "\t" + Utils.isUpper(s));
             if (Utils.isUpper(s))
                 countAllCaps++;
         }
         int capDifferential = wordsAndEmoticons.size() - countAllCaps;
-        logger.debug(wordsAndEmoticons.size() + "\t" + capDifferential + "\t" + countAllCaps);
         return (0 < capDifferential) && (capDifferential < wordsAndEmoticons.size());
     }
 

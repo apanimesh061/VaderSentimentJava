@@ -35,6 +35,11 @@ public class Utils {
     public static ArrayList<String> PUNCTUATION_LIST = new ArrayList<>(Arrays.asList(PUNCTUATION_LIST_array));
     public static ArrayList<String> NEGATIVE_WORDS = new ArrayList<>(Arrays.asList(NEGATIVE_WORDS_array));
 
+    public static String POSITIVE_SCORE = "positive";
+    public static String NEGATIVE_SCORE = "negative";
+    public static String NEUTRAL_SCORE = "neutral";
+    public static String COMPOUND_SCORE = "compound";
+
     public static float BOOSTER_WORD_INCREMENT = 0.293f;
     public static float DAMPENER_WORD_DECREMENT = -0.293f;
 

@@ -24,6 +24,7 @@
                     <exclude>commons-lang:commons-lang</exclude>
                     <exclude>log4j:log4j</exclude>
                     <exclude>junit:junit</exclude>
+                    <exclude>**/log4j.properties</exclude>
                 </excludes>
             </unpackOptions>
         </dependencySet>

@@ -1,5 +1,6 @@
 package com.vader.sentiment.analyzer;
 
+import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -12,7 +13,7 @@ import java.util.List;
 
 /**
  * This tests confirms if the port from Python NLTK was correct.
- * The sentiment scores are precomuted for Python and them compared
+ * The sentiment scores are pre-computed for Python and them compared
  * with same text input using the Java implementation.
  * The sentiment scores are supposed to be equal.
  * <p>
@@ -28,6 +29,7 @@ import java.util.List;
 public class SentimentAnalyzerTest {
     private static final ClassLoader loader = SentimentAnalyzerTest.class.getClassLoader();
     private static List<String> testFiles = new ArrayList<>();
+    private static Logger LOGGER = Logger.getLogger(SentimentAnalyzerTest.class);
 
     @BeforeClass
     public static void setUpTestFiles() {
@@ -43,6 +45,7 @@ public class SentimentAnalyzerTest {
             InputStream inputStream = loader.getResourceAsStream(fileName);
             try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
                 String line;
+                SentimentAnalyzer sentimentAnalyzer = new SentimentAnalyzer();
                 while ((line = br.readLine()) != null) {
                     String[] gtFileData = line.split("\\t");
 
@@ -52,7 +55,8 @@ public class SentimentAnalyzerTest {
                     float expectedCompoundScore = Float.parseFloat(gtFileData[4]);
                     String inputString = gtFileData[5];
 
-                    SentimentAnalyzer sentimentAnalyzer = new SentimentAnalyzer(inputString);
+                    sentimentAnalyzer.setInputString(inputString);
+                    sentimentAnalyzer.setInputStringProperties();
                     sentimentAnalyzer.analyse();
 
                     HashMap<String, Float> inputStringPolarity = sentimentAnalyzer.getPolarity();
@@ -81,7 +85,7 @@ public class SentimentAnalyzerTest {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println("Test Passed for " + fileName);
+            LOGGER.info("Test passed for" + fileName);
         }
     }
 
