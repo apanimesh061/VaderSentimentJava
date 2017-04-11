@@ -1,7 +1,6 @@
 package com.vader.sentiment.processor;
 
 import com.vader.sentiment.util.Utils;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import java.util.Collections;
  * @see VaderLuceneAnalyzer
  */
 public class TextProperties {
-    private static Logger logger = Logger.getLogger(TextProperties.class);
 
     private String inputText;
     private ArrayList<String> wordsAndEmoticons;
