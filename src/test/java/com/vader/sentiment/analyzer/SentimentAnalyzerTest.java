@@ -57,7 +57,7 @@ public class SentimentAnalyzerTest {
 
                     sentimentAnalyzer.setInputString(inputString);
                     sentimentAnalyzer.setInputStringProperties();
-                    sentimentAnalyzer.analyse();
+                    sentimentAnalyzer.analyze();
 
                     HashMap<String, Float> inputStringPolarity = sentimentAnalyzer.getPolarity();
                     float actualNegativeScore = inputStringPolarity.get("negative");

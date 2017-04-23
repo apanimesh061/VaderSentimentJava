@@ -50,7 +50,7 @@ public class SentimentAnalyzer {
         return polarity;
     }
 
-    public void analyse() {
+    public void analyze() {
         polarity = getSentiment();
     }
 
