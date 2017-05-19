@@ -1,15 +1,17 @@
 package com.vader.sentiment.analyzer;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 
 /**
  * This tests confirms if the port from Python NLTK was correct.
@@ -29,7 +31,7 @@ import java.util.List;
 public class SentimentAnalyzerTest {
     private static final ClassLoader loader = SentimentAnalyzerTest.class.getClassLoader();
     private static List<String> testFiles = new ArrayList<>();
-    private static Logger LOGGER = Logger.getLogger(SentimentAnalyzerTest.class);
+    private static Logger logger = Logger.getLogger(SentimentAnalyzerTest.class);
 
     @BeforeClass
     public static void setUpTestFiles() {
@@ -59,7 +61,7 @@ public class SentimentAnalyzerTest {
                     sentimentAnalyzer.setInputStringProperties();
                     sentimentAnalyzer.analyze();
 
-                    HashMap<String, Float> inputStringPolarity = sentimentAnalyzer.getPolarity();
+                    Map<String, Float> inputStringPolarity = sentimentAnalyzer.getPolarity();
                     float actualNegativeScore = inputStringPolarity.get("negative");
                     float actualPositiveScore = inputStringPolarity.get("positive");
                     float actualNeutralScore = inputStringPolarity.get("neutral");
@@ -85,7 +87,7 @@ public class SentimentAnalyzerTest {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            LOGGER.info("Test passed for" + fileName);
+            logger.info("Test passed for" + fileName);
         }
     }
 
