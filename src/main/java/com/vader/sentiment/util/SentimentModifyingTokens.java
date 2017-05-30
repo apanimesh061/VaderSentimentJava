@@ -25,15 +25,18 @@
 package com.vader.sentiment.util;
 
 /**
+ * This is list of tokens that modifying the valence of tokens of a string if found in the same string.
+ *
  * @author Animesh Pandey
  *         Created on 5/13/2017.
  */
-public enum SentimentChangingTokens {
+//CHECKSTYLE.OFF: Javadoc*
+public enum SentimentModifyingTokens {
     NEVER("never"),
     SO("so"),
     THIS("this"),
-    LEAST("least"),
     AT("at"),
+    LEAST("least"),
     KIND("kind"),
     OF("of"),
     VERY("very"),
@@ -44,11 +47,12 @@ public enum SentimentChangingTokens {
 
     private String value;
 
+    SentimentModifyingTokens(String value) {
+        this.value = value;
+    }
+
     public String getValue() {
         return value;
     }
-
-    SentimentChangingTokens(String value) {
-        this.value = value;
-    }
 }
+//CHECKSTYLE.ON: Javadoc*

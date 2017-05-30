@@ -30,11 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.miscellaneous.LengthFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.analysis.Tokenizer;
 
 /**
  * This class defines a Lucene analyzer that is applied on the input string in
@@ -46,7 +46,6 @@ import org.apache.lucene.analysis.Tokenizer;
 class InputAnalyzer implements InputAnalyzerInterface {
     /**
      * This function applies a Lucene analyzer that splits a string into a tokens.
-     * <p>
      * Here we are using two types of Lucene {@link Tokenizer}s:
      * 1. {@link WhitespaceTokenizer} which tokenizes from the white spaces
      * 2. {@link StandardTokenizer} which tokenizes from white space as well as removed any punctuations
@@ -57,15 +56,20 @@ class InputAnalyzer implements InputAnalyzerInterface {
      * @throws IOException if Lucene's analyzer encounters any error
      */
     private List<String> tokenize(String inputString, boolean removePunctuation) throws IOException {
-        StringReader reader = new StringReader(inputString);
-        Tokenizer currentTokenizer = (removePunctuation) ? new StandardTokenizer() : new WhitespaceTokenizer();
+        final StringReader reader = new StringReader(inputString);
+        final Tokenizer currentTokenizer;
+        if (removePunctuation) {
+            currentTokenizer = new StandardTokenizer();
+        } else {
+            currentTokenizer = new WhitespaceTokenizer();
+        }
         currentTokenizer.setReader(reader);
 
-        TokenStream tokenStream = new LengthFilter(currentTokenizer, 2, Integer.MAX_VALUE);
+        final TokenStream tokenStream = new LengthFilter(currentTokenizer, 2, Integer.MAX_VALUE);
         final CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
         tokenStream.reset();
 
-        ArrayList<String> tokenizedString = new ArrayList<>();
+        final List<String> tokenizedString = new ArrayList<>();
         while (tokenStream.incrementToken()) {
             tokenizedString.add(charTermAttribute.toString());
         }
@@ -77,12 +81,9 @@ class InputAnalyzer implements InputAnalyzerInterface {
     }
 
     /**
-     * This is {@link InputAnalyzer#tokenize(String, boolean)} with removePunctuation set as false. So, this
-     * method performs tokenization without removing punctuations.
+     * Implementation of {@link InputAnalyzerInterface#defaultSplit(String)}.
      *
-     * @param inputString The input string to be pre-processed with Lucene tokenizer
-     * @return tokens
-     * @throws IOException if Lucene's analyzer encounters any error
+     * {@inheritDoc}
      */
     @Override
     public List<String> defaultSplit(String inputString) throws IOException {
@@ -90,12 +91,9 @@ class InputAnalyzer implements InputAnalyzerInterface {
     }
 
     /**
-     * This is {@link InputAnalyzer#tokenize(String, boolean)} with removePunctuation set as false. So, this
-     * method performs tokenization without removing punctuations.
+     * Implementation of {@link InputAnalyzerInterface#removePunctuation(String)}.
      *
-     * @param inputString The input string to be pre-processed with Lucene tokenizer
-     * @return tokens
-     * @throws IOException if Lucene's analyzer encounters any error
+     * {@inheritDoc}
      */
     @Override
     public List<String> removePunctuation(String inputString) throws IOException {

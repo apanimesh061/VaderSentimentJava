@@ -22,33 +22,39 @@
  * SOFTWARE.
  */
 
-package com.vader.sentiment.processor;
-
-import java.io.IOException;
-import java.util.List;
+package com.vader.sentiment.util;
 
 /**
+ * This class defines labels for the four types of sentiment scores.
+ *
  * @author Animesh Pandey
- *         Created on 4/16/2016.
+ *         Created on 5/28/2017.
  */
-interface InputAnalyzerInterface {
+public final class ScoreType {
     /**
-     * This is {@link InputAnalyzer#tokenize(String, boolean)} with removePunctuation set as false. So, this
-     * method performs tokenization without removing punctuations.
-     *
-     * @param inputString The input string to be pre-processed with Lucene tokenizer
-     * @return tokens
-     * @throws IOException if Lucene's analyzer encounters any error
+     * Label for positive sentiment.
      */
-    List<String> defaultSplit(String inputString) throws IOException;
+    public static final String POSITIVE = "positive";
 
     /**
-     * This is {@link InputAnalyzer#tokenize(String, boolean)} with removePunctuation set as false. So, this
-     * method performs tokenization without removing punctuations.
-     *
-     * @param inputString The input string to be pre-processed with Lucene tokenizer
-     * @return tokens
-     * @throws IOException if Lucene's analyzer encounters any error
+     * Label for negative sentiment.
      */
-    List<String> removePunctuation(String inputString) throws IOException;
+    public static final String NEGATIVE = "negative";
+
+    /**
+     * Label for neutral sentiment.
+     */
+    public static final String NEUTRAL = "neutral";
+
+    /**
+     * Label for compound sentiment.
+     */
+    public static final String COMPOUND = "compound";
+
+    /**
+     * Private constructor for utility class.
+     */
+    private ScoreType() {
+
+    }
 }

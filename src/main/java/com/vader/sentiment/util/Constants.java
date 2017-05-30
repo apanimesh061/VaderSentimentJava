@@ -25,35 +25,17 @@
 package com.vader.sentiment.util;
 
 /**
+ * This class defines constants that are used during the computation of the sentiment scores.
+ *
  * @author Animesh Pandey
  *         Created on 5/14/2017.
  */
 public final class Constants {
     /**
-     *
-     */
-    public static final String POSITIVE_SCORE = "positive";
-
-    /**
-     *
-     */
-    public static final String NEGATIVE_SCORE = "negative";
-
-    /**
-     *
-     */
-    public static final String NEUTRAL_SCORE = "neutral";
-
-    /**
-     *
-     */
-    public static final String COMPOUND_SCORE = "compound";
-
-    /**
      * Max allowed question marks in a string.
      * Beyond this value the affect of the Question marks will be considered the same.
      *
-     * @see SentimentChangingTokens#QUESTION_MARK
+     * @see SentimentModifyingTokens#QUESTION_MARK
      */
     public static final int MAX_QUESTION_MARKS = 3;
 
@@ -73,7 +55,34 @@ public final class Constants {
     public static final int PRECEDING_UNIGRAM_WINDOW = 1;
 
     /**
-     * Private constructor for a utility class.
+     * Maximum number for exclamation marks that could be processed.
+     */
+    public static final int MAX_EXCLAMATION_MARKS = 4;
+
+    /**
+     * This is the window size within which processing will be done.
+     * This means that we would be dealing only with unigrams, bigrams and
+     * trigrams.
+     */
+    public static final int MAX_GRAM_WINDOW_SIZE = 3;
+
+    /**
+     * This alpha approximates the max expected value for a sentiment score.
+     */
+    public static final float DEFAULT_ALPHA = 15.0F;
+
+    /**
+     * This regex checks if a string has only alphabets and no special characters or numbers.
+     */
+    public static final String NON_NUMERIC_STRING_REGEX = ".*[a-zA-Z]+.*";
+
+    /**
+     * This string defines the prefix for a string that has a URL.
+     */
+    public static final String URL_PREFIX = "http://";
+
+    /**
+     * Private constructor for utility class.
      */
     private Constants() {
 

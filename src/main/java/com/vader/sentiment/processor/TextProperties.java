@@ -24,24 +24,52 @@
 
 package com.vader.sentiment.processor;
 
-import com.vader.sentiment.util.Utils;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import com.vader.sentiment.util.Utils;
+
 /**
  * The TextProperties class implements the pre-processing steps of the input string for sentiment analysis.
- * It utilizes the Lucene analyzers
+ * It utilizes the Lucene analyzer to perform processing on the input string.
  *
  * @author Animesh Pandey
  *         Created on 4/10/2016.
  */
-public class TextProperties {
+public final class TextProperties {
+    /**
+     * String whose properties will be extracted.
+     */
     private String inputText;
+
+    /**
+     * List of tokens and emoticons extracted from the {@link TextProperties#inputText}.
+     */
     private List<String> wordsAndEmoticons;
+
+    /**
+     * List of tokens extracted from the {@link TextProperties#inputText}.
+     * Emoticons are removed here.
+     */
     private List<String> wordsOnly;
-    private boolean isCapDIff;
+
+    /**
+     * Flags that specifies if the current string has yelling words.
+     */
+    private boolean isCapDiff;
+
+    /**
+     * Parameterized constructor accepting the input string that will be processed.
+     *
+     * @param inputText the input string
+     * @throws IOException if there is an issue with the lucene analyzers
+     */
+    public TextProperties(String inputText) throws IOException {
+        this.inputText = inputText;
+        setWordsAndEmoticons();
+        setCapDiff(isAllCapDifferential());
+    }
 
     /**
      * This method tokenizes the input string, preserving the punctuation marks using
@@ -52,25 +80,25 @@ public class TextProperties {
     private void setWordsAndEmoticons() throws IOException {
         setWordsOnly();
 
-        List<String> wordsAndEmoticonsList = new InputAnalyzer().defaultSplit(inputText);
+        final List<String> wordsAndEmoticonsList = new InputAnalyzer().defaultSplit(inputText);
         for (String currentWord : wordsOnly) {
             for (String currentPunc : Utils.PUNCTUATION_LIST) {
-                String pWord = currentWord + currentPunc;
-                Integer pWordCount = Collections.frequency(wordsAndEmoticonsList, pWord);
-                while (pWordCount > 0) {
-                    int index = wordsAndEmoticonsList.indexOf(pWord);
-                    wordsAndEmoticonsList.remove(pWord);
+                final String wordPunct = currentWord + currentPunc;
+                Integer wordPunctCount = Collections.frequency(wordsAndEmoticonsList, wordPunct);
+                while (wordPunctCount > 0) {
+                    final int index = wordsAndEmoticonsList.indexOf(wordPunct);
+                    wordsAndEmoticonsList.remove(wordPunct);
                     wordsAndEmoticonsList.add(index, currentWord);
-                    pWordCount = Collections.frequency(wordsAndEmoticonsList, pWord);
+                    wordPunctCount = Collections.frequency(wordsAndEmoticonsList, wordPunct);
                 }
 
-                String wordP = currentPunc + currentWord;
-                Integer wordPCount = Collections.frequency(wordsAndEmoticonsList, wordP);
-                while (wordPCount > 0) {
-                    int index = wordsAndEmoticonsList.indexOf(wordP);
-                    wordsAndEmoticonsList.remove(wordP);
+                final String punctWord = currentPunc + currentWord;
+                Integer punctWordCount = Collections.frequency(wordsAndEmoticonsList, punctWord);
+                while (punctWordCount > 0) {
+                    final int index = wordsAndEmoticonsList.indexOf(punctWord);
+                    wordsAndEmoticonsList.remove(punctWord);
                     wordsAndEmoticonsList.add(index, currentWord);
-                    wordPCount = Collections.frequency(wordsAndEmoticonsList, wordP);
+                    punctWordCount = Collections.frequency(wordsAndEmoticonsList, punctWord);
                 }
             }
         }
@@ -78,35 +106,17 @@ public class TextProperties {
     }
 
     /**
-     * This method tokenizes the input string, removing the special characters as well
+     * This method tokenizes the input string, removing the special characters as well.
      *
-     * @throws IOException
+     * @throws IOException iff there is an error which using Lucene analyzers.
      * @see InputAnalyzer#removePunctuation(String)
      */
     private void setWordsOnly() throws IOException {
         this.wordsOnly = new InputAnalyzer().removePunctuation(inputText);
     }
 
-    private void setCapDiff(boolean capDIff) {
-        isCapDIff = capDIff;
-    }
-
-    /**
-     * @return True iff the input has yelling words i.e. all caps in the tokens, but all the token should not be
-     * in upper case.
-     * e.g. [GET, THE, HELL, OUT] returns false
-     * [GET, the, HELL, OUT] returns true
-     * [get, the, hell, out] returns false
-     */
-    private boolean isAllCapDifferential() {
-        int countAllCaps = 0;
-        for (String s : wordsAndEmoticons) {
-            if (Utils.isUpper(s)) {
-                countAllCaps++;
-            }
-        }
-        int capDifferential = wordsAndEmoticons.size() - countAllCaps;
-        return (0 < capDifferential) && (capDifferential < wordsAndEmoticons.size());
+    private void setCapDiff(boolean capDiff) {
+        this.isCapDiff = capDiff;
     }
 
     public List<String> getWordsAndEmoticons() {
@@ -118,25 +128,26 @@ public class TextProperties {
     }
 
     public boolean isCapDiff() {
-        return isCapDIff;
+        return isCapDiff;
     }
 
     /**
+     * Return true iff the input has yelling words i.e. all caps in the tokens, but all the token should not be
+     * in upper case.
+     * e.g. [GET, THE, HELL, OUT] returns false
+     * [GET, the, HELL, OUT] returns true
+     * [get, the, hell, out] returns false
      *
-     * @param inputText
-     * @throws IOException
+     * @return boolean value
      */
-    public TextProperties(String inputText) throws IOException {
-        this.inputText = inputText;
-        setWordsAndEmoticons();
-        setCapDiff(isAllCapDifferential());
-    }
-
-    public static void main(String[] args) throws IOException {
-        String input = "The plot was good, but the characters are uncompelling and the dialog is not great. :( :(";
-        TextProperties properties = new TextProperties(input);
-        System.out.println(properties.getWordsOnly());
-        System.out.println(properties.getWordsAndEmoticons());
-        System.out.println(properties.isCapDiff());
+    private boolean isAllCapDifferential() {
+        int countAllCaps = 0;
+        for (String token : wordsAndEmoticons) {
+            if (Utils.isUpper(token)) {
+                countAllCaps++;
+            }
+        }
+        final int capDifferential = wordsAndEmoticons.size() - countAllCaps;
+        return (0 < capDifferential) && (capDifferential < wordsAndEmoticons.size());
     }
 }

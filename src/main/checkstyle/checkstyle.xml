@@ -32,14 +32,11 @@
         <property name="acceptOnMatch" value="false"/>
     </module>
     <module name="SuppressionCommentFilter">
-        <!--
-          Use suppressions.xml for suppressions, this is only example.
-          checkFormat will prevent suppression comments from being valid.
-        -->
-        <property name="checkFormat" value="IGNORETHIS"/>
-        <property name="offCommentFormat" value="CSOFF\: .*"/>
-        <property name="onCommentFormat" value="CSON\: .*"/>
+        <property name="offCommentFormat" value="CHECKSTYLE.OFF\: ([\w\|]+)"/>
+        <property name="onCommentFormat" value="CHECKSTYLE.ON\: ([\w\|]+)"/>
+        <property name="checkFormat" value="$1"/>
     </module>
+
     <!--<module name="SuppressionFilter">-->
         <!--<property name="file" value="${checkstyle.suppressions.file}"/>-->
     <!--</module>-->
@@ -261,6 +258,7 @@
         <module name="RequireThis"/>
         <module name="ReturnCount">
             <property name="maxForVoid" value="0"/>
+            <property name="max" value="5"/>
         </module>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>

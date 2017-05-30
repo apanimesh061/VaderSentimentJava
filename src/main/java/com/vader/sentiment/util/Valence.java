@@ -25,12 +25,13 @@
 package com.vader.sentiment.util;
 
 /**
+ * List of default values of valence modifiers.
+ * This list has values as well as factors that modify the valence.
+ *
  * @author Animesh Pandey
  *         Created on 5/13/2017.
  */
 public enum Valence {
-    ZERO(0.0F),
-
     /**
      * This denotes the default valence for token that boost.
      */
@@ -74,15 +75,43 @@ public enum Valence {
     /**
      * If the preceding bigram has a "never" type phrase, increase the negative valence by 50%.
      */
-    PRECEDING_BIGRAM_HAVING_NEVER_DAMPING_FACTOR(1.5F);
+    PRECEDING_BIGRAM_HAVING_NEVER_DAMPING_FACTOR(1.5F),
 
+    /**
+     * At distance of 1 from current token, reduce current gram's valence by 5%.
+     */
+    ONE_WORD_DISTANCE_DAMPING_FACTOR(0.95F),
+
+    /**
+     * At distance of 2 from current token, reduce current gram's valence by 10%.
+     */
+    TWO_WORD_DISTANCE_DAMPING_FACTOR(0.9F),
+
+    /**
+     * If the conjunction is after the current token then reduce valence by 50%.
+     */
+    PRE_CONJUNCTION_ADJUSTMENT_FACTOR(0.5F),
+
+    /**
+     * If the conjunction is before the current token then increase valence by 50%.
+     */
+    POST_CONJUNCTION_ADJUSTMENT_FACTOR(1.5F);
+
+    /**
+     * Valence value.
+     */
     private float value;
+
+    /**
+     * Enum constructor.
+     *
+     * @param value valence value
+     */
+    Valence(float value) {
+        this.value = value;
+    }
 
     public float getValue() {
         return value;
-    }
-
-    Valence(float value) {
-        this.value = value;
     }
 }
