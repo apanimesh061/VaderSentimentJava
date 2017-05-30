@@ -11,6 +11,13 @@ This is a JAVA port of the NLTK VADER sentiment analysis originally written in P
 
 For the testing I have compared the results of the NLTK module with this Java port.
 
+### Update (May 2017)
+
+- - -
+Major design refactorings resulting from addition of `checkstyle` to the project.
+
+Also added JavaDocs to the project.
+
 ### Update (Jan 2017)
 
 - - -
