@@ -187,12 +187,23 @@ public final class SentimentAnalyzer {
                 wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_BIGRAM_WINDOW);
             final String wordAtDistanceOneLeft =
                 wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_UNIGRAM_WINDOW);
-            if ((wordAtDistanceThreeLeft.equals(SentimentModifyingTokens.NEVER.getValue()))
-                && (wordAtDistanceTwoLeft.equals(SentimentModifyingTokens.SO.getValue())
-                || wordAtDistanceTwoLeft.equals(SentimentModifyingTokens.THIS.getValue()))
-                || (wordAtDistanceOneLeft.equals(SentimentModifyingTokens.SO.getValue())
-                || wordAtDistanceOneLeft.equals(SentimentModifyingTokens.THIS.getValue()))) {
-                tempValence *= Valence.PRECEDING_TRIGRAM_HAVING_NEVER_DAMPING_FACTOR.getValue();
+            if (wordAtDistanceThreeLeft.equals(SentimentModifyingTokens.NEVER.getValue())) {
+                if ((wordAtDistanceTwoLeft.equals(SentimentModifyingTokens.SO.getValue())
+                    || wordAtDistanceTwoLeft.equals(SentimentModifyingTokens.THIS.getValue()))
+                    || (wordAtDistanceOneLeft.equals(SentimentModifyingTokens.SO.getValue())
+                    || wordAtDistanceOneLeft.equals(SentimentModifyingTokens.THIS.getValue()))) {
+                    tempValence *= Valence.PRECEDING_TRIGRAM_HAVING_NEVER_DAMPING_FACTOR.getValue();
+                }
+            } else if (isNegative(wordAtDistanceThreeLeft)) {
+                if ((wordAtDistanceTwoLeft.equals(SentimentModifyingTokens.SO.getValue())
+                    || wordAtDistanceTwoLeft.equals(SentimentModifyingTokens.THIS.getValue()))
+                    || (wordAtDistanceOneLeft.equals(SentimentModifyingTokens.SO.getValue())
+                    || wordAtDistanceOneLeft.equals(SentimentModifyingTokens.THIS.getValue()))) {
+                    if (tempValence < 0.0) {
+                        tempValence = -tempValence;
+                    }
+                    tempValence *= Valence.NEGATIVE_WORD_DAMPING_FACTOR.getValue();
+                }
             } else if (isNegative(wordsAndEmoticons.get(closeTokenIndex))) {
                 tempValence *= Valence.NEGATIVE_WORD_DAMPING_FACTOR.getValue();
             }
@@ -738,6 +749,14 @@ public final class SentimentAnalyzer {
     private Map<String, Float> getSentiment() {
         final List<Float> tokenWiseSentiments = getTokenWiseSentiment();
         return getPolarityScores(tokenWiseSentiments);
+    }
+
+    public static void main(String[] args) throws IOException {
+        SentimentAnalyzer sentimentAnalyzer;
+//        sentimentAnalyzer = new SentimentAnalyzer("I have not been this disappointed by a movie in a long time.");
+        sentimentAnalyzer = new SentimentAnalyzer("I don't feel so good");
+        sentimentAnalyzer.analyze();
+        System.out.println(sentimentAnalyzer.getPolarity());
     }
 }
 //CHECKSTYLE.ON: ExecutableStatementCount

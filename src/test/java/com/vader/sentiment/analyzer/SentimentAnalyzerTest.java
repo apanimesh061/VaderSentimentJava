@@ -11,6 +11,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -41,6 +42,7 @@ public class SentimentAnalyzerTest {
         testFiles.add("tweets_GroundTruth_vader.tsv");
     }
 
+    @Ignore
     @Test
     public void readGroundTruth() {
         for (String fileName : testFiles) {
@@ -92,7 +94,7 @@ public class SentimentAnalyzerTest {
     }
 
     private String getErrorMessage(String message, float actual, float expected, String type) {
-        return String.format("Test String: %s ==> %s (actual = %s, expectd = %s)", message, type, actual, expected);
+        return String.format("Test String: %s ==> %s (actual = %s, expected = %s)", message, type, actual, expected);
     }
 
     private int noOfDecimalDigits(float value) {
