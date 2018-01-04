@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.vader.sentiment.util.ScoreType;
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -62,26 +63,26 @@ public class SentimentAnalyzerTest {
                     sentimentAnalyzer.analyze();
 
                     Map<String, Float> inputStringPolarity = sentimentAnalyzer.getPolarity();
-                    float actualNegativeScore = inputStringPolarity.get("negative");
-                    float actualPositiveScore = inputStringPolarity.get("positive");
-                    float actualNeutralScore = inputStringPolarity.get("neutral");
-                    float actualCompoundScore = inputStringPolarity.get("compound");
+                    float actualNegativeScore = inputStringPolarity.get(ScoreType.NEGATIVE);
+                    float actualPositiveScore = inputStringPolarity.get(ScoreType.POSITIVE);
+                    float actualNeutralScore = inputStringPolarity.get(ScoreType.NEUTRAL);
+                    float actualCompoundScore = inputStringPolarity.get(ScoreType.COMPOUND);
 
                     Assert.assertFalse(
-                            getErrorMessage(inputString, actualNegativeScore, expectedNegativeScore, "Negative Score"),
-                            error(actualNegativeScore, expectedNegativeScore)
+                        getErrorMessage(inputString, actualNegativeScore, expectedNegativeScore, "Negative Score"),
+                        error(actualNegativeScore, expectedNegativeScore)
                     );
                     Assert.assertFalse(
-                            getErrorMessage(inputString, actualPositiveScore, expectedPositiveScore, "Positive Score"),
-                            error(actualPositiveScore, expectedPositiveScore)
+                        getErrorMessage(inputString, actualPositiveScore, expectedPositiveScore, "Positive Score"),
+                        error(actualPositiveScore, expectedPositiveScore)
                     );
                     Assert.assertFalse(
-                            getErrorMessage(inputString, actualNeutralScore, expectedNeutralScore, "Neutral Score"),
-                            error(actualNeutralScore, expectedNeutralScore)
+                        getErrorMessage(inputString, actualNeutralScore, expectedNeutralScore, "Neutral Score"),
+                        error(actualNeutralScore, expectedNeutralScore)
                     );
                     Assert.assertFalse(
-                            getErrorMessage(inputString, actualCompoundScore, expectedCompoundScore, "Compound Score"),
-                            error(actualCompoundScore, expectedCompoundScore)
+                        getErrorMessage(inputString, actualCompoundScore, expectedCompoundScore, "Compound Score"),
+                        error(actualCompoundScore, expectedCompoundScore)
                     );
                 }
             } catch (IOException e) {
@@ -92,10 +93,16 @@ public class SentimentAnalyzerTest {
     }
 
     private String getErrorMessage(String message, float actual, float expected, String type) {
-        return String.format("Test String: %s ==> %s (actual = %s, expectd = %s)", message, type, actual, expected);
+        return String.format("Test String: %s ==> %s (actual = %s, expected = %s)", message, type, actual, expected);
     }
 
-    private int noOfDecimalDigits(float value) {
+    /**
+     * Count the number of digits in the fractional section.
+     *
+     * @param value float value
+     * @return length of fractional part of decimal number.
+     */
+    private static int fractionalPartLength(float value) {
         String text = Float.toString(Math.abs(value));
         return text.length() - text.indexOf('.') - 1;
     }
@@ -111,13 +118,13 @@ public class SentimentAnalyzerTest {
      * error(0.0345, 0.0346) => false
      * error(0.0345, 0.0348) => true
      *
-     * @param actual
-     * @param experiment
-     * @return true iff the difference between actual and experiment is
+     * @param actual     actual value
+     * @param experiment experiment value
+     * @return true if the difference between actual and experiment is
      * greater than 1.0
      */
     private boolean error(float actual, float experiment) {
-        int maxPlaces = Math.max(noOfDecimalDigits(actual), noOfDecimalDigits(experiment));
+        int maxPlaces = Math.max(fractionalPartLength(actual), fractionalPartLength(experiment));
         return ((Math.abs(Math.abs(actual * maxPlaces) - Math.abs(experiment * maxPlaces))) > 1.0);
     }
 }
