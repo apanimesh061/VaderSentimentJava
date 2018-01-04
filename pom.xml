@@ -14,6 +14,7 @@
         is a lexicon and rule-based sentiment analysis tool that is specifically attuned to sentiments expressed in
         social media, and works well on texts from other domains.
     </description>
+    <url>https://github.com/apanimesh061/VaderSentimentJava/blob/master/README.md</url>
     <inceptionYear>2016</inceptionYear>
 
     <licenses>
@@ -24,6 +25,23 @@
         </license>
     </licenses>
 
+    <developers>
+        <developer>
+            <id>apanimesh061</id>
+            <name>Animesh Pandey</name>
+            <email>apanimesh061@gmail.com</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/apanimesh061/VaderSentimentJava</url>
+        <connection>scm:git:git://github.com/apanimesh061/VaderSentimentJava.git</connection>
+        <developerConnection>scm:git:git@github.com:apanimesh061/VaderSentimentJava.git</developerConnection>
+    </scm>
+
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
@@ -32,8 +50,12 @@
 
     <properties>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <elasticsearch.assembly.descriptor>${project.basedir}/src/main/assemblies/assembly.xml</elasticsearch.assembly.descriptor>
-        <checkstyle.config.location>${project.basedir}/src/main/checkstyle/checkstyle.xml</checkstyle.config.location>
+        <elasticsearch.assembly.descriptor>
+            ${project.basedir}/src/main/assemblies/assembly.xml
+        </elasticsearch.assembly.descriptor>
+        <checkstyle.config.location>
+            ${project.basedir}/src/main/checkstyle/checkstyle.xml
+        </checkstyle.config.location>
     </properties>
 
     <build>
@@ -133,7 +155,7 @@
                         <id>validate</id>
                         <phase>validate</phase>
                         <configuration>
-                            <!--<configLocation>${checkstyle.config.location}</configLocation>-->
+                            <configLocation>${checkstyle.config.location}</configLocation>
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
