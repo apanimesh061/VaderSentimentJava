@@ -11,6 +11,22 @@ This is a JAVA port of the NLTK VADER sentiment analysis originally written in P
 
 For the testing I have compared the results of the NLTK module with this Java port.
 
+### Update (Jan 2018)
+
+- - -
+Based on a recommendation from @alexpetlenko, I uploaded the jar to Nexus as `vader-sentiment-analyzer-1.0`.
+
+You can download the jar by adding the following to you `pom.xml`:
+```xml
+<dependency>
+  <groupId>com.github.apanimesh061</groupId>
+  <artifactId>vader-sentiment-analyzer</artifactId>
+  <version>1.0</version>
+</dependency>
+```
+
+Path to Jar: [vader-sentiment-analyzer-1.0.jar](https://oss.sonatype.org/service/local/repositories/releases/content/com/github/apanimesh061/vader-sentiment-analyzer/1.0/vader-sentiment-analyzer-1.0.jar)
+
 ### Update (May 2017)
 
 - - -
