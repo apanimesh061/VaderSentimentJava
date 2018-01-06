@@ -24,7 +24,6 @@ import org.junit.Test;
  * between Python and Java.
  *
  * @author Animesh Pandey
- *         Created on 4/14/2016.
  * @see <a href=http://github.com/apanimesh061/VaderSentimentJava/commit/d1d30c4ceeb356ec838f8abac70514bd21a92b4b>
  * http://github.com/apanimesh061/VaderSentimentJava/commit/d1d30c4ceeb356ec838f8abac70514bd21a92b4b
  * </a>

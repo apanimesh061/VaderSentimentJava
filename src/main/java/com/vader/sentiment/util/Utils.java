@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Animesh Pandey
+ * Copyright (c) 2018 Animesh Pandey
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,7 +40,6 @@ import java.util.Set;
  * The constants are same as the ones used in the official python implementation
  *
  * @author Animesh Pandey
- *         Created on 4/9/2016.
  * @see <a href="http://www.nltk.org/_modules/nltk/sentiment/vader.html">NLTK Source</a>
  * @see <a href="https://github.com/cjhutto/vaderSentiment/blob/master/vaderSentiment/vaderSentiment.py">
  * vaderSentiment Python module</a>

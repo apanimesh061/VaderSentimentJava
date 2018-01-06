@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Animesh Pandey
+ * Copyright (c) 2018 Animesh Pandey
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,6 @@ package com.vader.sentiment.util;
  * This class defines constants that are used during the computation of the sentiment scores.
  *
  * @author Animesh Pandey
- *         Created on 5/14/2017.
  */
 public final class Constants {
     /**

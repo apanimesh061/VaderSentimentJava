@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Animesh Pandey
+ * Copyright (c) 2018 Animesh Pandey
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,8 +28,9 @@ import java.io.IOException;
 import java.util.List;
 
 /**
+ * This interface defines methods that use two methods for splitting up a raw string.
+ *
  * @author Animesh Pandey
- *         Created on 4/16/2016.
  */
 interface InputAnalyzerInterface {
     /**

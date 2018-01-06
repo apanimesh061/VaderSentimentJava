@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Animesh Pandey
+ * Copyright (c) 2018 Animesh Pandey
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,6 @@ import com.vader.sentiment.util.Utils;
  * It utilizes the Lucene analyzer to perform processing on the input string.
  *
  * @author Animesh Pandey
- *         Created on 4/10/2016.
  */
 public final class TextProperties {
     /**

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Animesh Pandey
+ * Copyright (c) 2018 Animesh Pandey
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,6 @@ import com.vader.sentiment.util.Valence;
  * The SentimentAnalyzer class is the main class for VADER Sentiment analysis.
  *
  * @author Animesh Pandey
- *         Created on 4/11/2016.
  * @see <a href="http://comp.social.gatech.edu/papers/icwsm14.vader.hutto.pdf">VADER: A Parsimonious Rule-based Model
  * for Sentiment Analysis of Social Media Text</a>
  */
@@ -87,8 +86,7 @@ public final class SentimentAnalyzer {
      * Parameterized constructor for current class.
      *
      * @param inputString This is the input string.
-     * @throws IOException if there was na issue in using {@link com.vader.sentiment.processor.InputAnalyzer}
-     *                     on the string.
+     * @throws IOException if there was an error while executing {@link SentimentAnalyzer#setInputStringProperties()}.
      */
     public SentimentAnalyzer(String inputString) throws IOException {
         this.inputString = inputString;
@@ -102,9 +100,7 @@ public final class SentimentAnalyzer {
     /**
      * Computes text properties required for current string.
      *
-     * @throws IOException if there was na issue in using {@link com.vader.sentiment.processor.InputAnalyzer}
-     *                     on the string.
-     * @see TextProperties
+     * @throws IOException if there was an issue in getting {@link TextProperties} of the input string.
      */
     public void setInputStringProperties() throws IOException {
         inputStringProperties = new TextProperties(inputString);

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Animesh Pandey
+ * Copyright (c) 2018 Animesh Pandey
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,6 @@ package com.vader.sentiment.util;
  * This list has values as well as factors that modify the valence.
  *
  * @author Animesh Pandey
- *         Created on 5/13/2017.
  */
 public enum Valence {
     /**

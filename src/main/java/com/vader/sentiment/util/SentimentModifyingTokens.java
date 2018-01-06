@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Animesh Pandey
+ * Copyright (c) 2018 Animesh Pandey
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,6 @@ package com.vader.sentiment.util;
  * This is list of tokens that modifying the valence of tokens of a string if found in the same string.
  *
  * @author Animesh Pandey
- *         Created on 5/13/2017.
  */
 //CHECKSTYLE.OFF: Javadoc*
 public enum SentimentModifyingTokens {

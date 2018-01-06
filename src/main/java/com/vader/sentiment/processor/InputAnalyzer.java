@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2017 Animesh Pandey
+ * Copyright (c) 2018 Animesh Pandey
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -41,7 +41,6 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
  * {@link com.vader.sentiment.analyzer.SentimentAnalyzer}.
  *
  * @author Animesh Pandey
- *         Created on 4/9/2016.
  */
 class InputAnalyzer implements InputAnalyzerInterface {
     /**
