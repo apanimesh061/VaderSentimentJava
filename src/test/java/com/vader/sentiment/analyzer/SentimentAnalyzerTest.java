@@ -9,10 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.vader.sentiment.util.ScoreType;
-import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This tests confirms if the port from Python NLTK was correct.
@@ -31,7 +32,7 @@ import org.junit.Test;
 public class SentimentAnalyzerTest {
     private static final ClassLoader loader = SentimentAnalyzerTest.class.getClassLoader();
     private static List<String> testFiles = new ArrayList<>();
-    private static Logger logger = Logger.getLogger(SentimentAnalyzerTest.class);
+    private static Logger logger = LoggerFactory.getLogger(SentimentAnalyzerTest.class);
 
     @BeforeClass
     public static void setUpTestFiles() {
