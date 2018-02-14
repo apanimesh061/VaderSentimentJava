@@ -25,15 +25,7 @@
 package com.vader.sentiment.analyzer;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import java.util.*;
 
 import com.vader.sentiment.processor.TextProperties;
 import com.vader.sentiment.util.Constants;
@@ -41,6 +33,9 @@ import com.vader.sentiment.util.ScoreType;
 import com.vader.sentiment.util.SentimentModifyingTokens;
 import com.vader.sentiment.util.Utils;
 import com.vader.sentiment.util.Valence;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The SentimentAnalyzer class is the main class for VADER Sentiment analysis.
@@ -56,7 +51,7 @@ public final class SentimentAnalyzer {
     /**
      * Logger for current class.
      */
-    private static Logger logger = Logger.getLogger(SentimentAnalyzer.class);
+    private static Logger logger = LoggerFactory.getLogger(SentimentAnalyzer.class);
 
     /**
      * This is the input string that will be analyzed.
@@ -125,7 +120,7 @@ public final class SentimentAnalyzer {
      * @param currentValence valence to be adjusted
      * @return adjusted valence
      */
-    private float valenceModifier(String precedingToken, float currentValence) {
+    private float valenceModifier(final String precedingToken, final float currentValence) {
         float scalar = 0.0F;
         final String precedingWordLower = precedingToken.toLowerCase();
         if (Utils.getBoosterDictionary().containsKey(precedingWordLower)) {
@@ -156,7 +151,10 @@ public final class SentimentAnalyzer {
      * @param closeTokenIndex     token at the distance position from current item
      * @return adjusted valence
      */
-    private float checkForNever(float currentValence, int distance, int currentItemPosition, int closeTokenIndex) {
+    private float checkForNever(final float currentValence,
+                                final int distance,
+                                final int currentItemPosition,
+                                final int closeTokenIndex) {
         final List<String> wordsAndEmoticons = inputStringProperties.getWordsAndEmoticons();
         float tempValence = currentValence;
 
@@ -166,28 +164,28 @@ public final class SentimentAnalyzer {
             }
         } else if (distance == 1) {
             final String wordAtDistanceTwoLeft =
-                wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_BIGRAM_WINDOW);
+                    wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_BIGRAM_WINDOW);
             final String wordAtDistanceOneLeft =
-                wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_UNIGRAM_WINDOW);
+                    wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_UNIGRAM_WINDOW);
             if ((wordAtDistanceTwoLeft.equals(SentimentModifyingTokens.NEVER.getValue()))
-                && (wordAtDistanceOneLeft.equals(SentimentModifyingTokens.SO.getValue())
-                || (wordAtDistanceOneLeft.equals(SentimentModifyingTokens.NEVER.getValue())))) {
+                    && (wordAtDistanceOneLeft.equals(SentimentModifyingTokens.SO.getValue())
+                    || (wordAtDistanceOneLeft.equals(SentimentModifyingTokens.NEVER.getValue())))) {
                 tempValence *= Valence.PRECEDING_BIGRAM_HAVING_NEVER_DAMPING_FACTOR.getValue();
             } else if (isNegative(wordsAndEmoticons.get(closeTokenIndex))) {
                 tempValence *= Valence.NEGATIVE_WORD_DAMPING_FACTOR.getValue();
             }
         } else if (distance == 2) {
             final String wordAtDistanceThreeLeft = wordsAndEmoticons.get(currentItemPosition
-                - Constants.PRECEDING_TRIGRAM_WINDOW);
+                    - Constants.PRECEDING_TRIGRAM_WINDOW);
             final String wordAtDistanceTwoLeft =
-                wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_BIGRAM_WINDOW);
+                    wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_BIGRAM_WINDOW);
             final String wordAtDistanceOneLeft =
-                wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_UNIGRAM_WINDOW);
+                    wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_UNIGRAM_WINDOW);
             if ((wordAtDistanceThreeLeft.equals(SentimentModifyingTokens.NEVER.getValue()))
-                && (wordAtDistanceTwoLeft.equals(SentimentModifyingTokens.SO.getValue())
-                || wordAtDistanceTwoLeft.equals(SentimentModifyingTokens.THIS.getValue()))
-                || (wordAtDistanceOneLeft.equals(SentimentModifyingTokens.SO.getValue())
-                || wordAtDistanceOneLeft.equals(SentimentModifyingTokens.THIS.getValue()))) {
+                    && (wordAtDistanceTwoLeft.equals(SentimentModifyingTokens.SO.getValue())
+                    || wordAtDistanceTwoLeft.equals(SentimentModifyingTokens.THIS.getValue()))
+                    || (wordAtDistanceOneLeft.equals(SentimentModifyingTokens.SO.getValue())
+                    || wordAtDistanceOneLeft.equals(SentimentModifyingTokens.THIS.getValue()))) {
                 tempValence *= Valence.PRECEDING_TRIGRAM_HAVING_NEVER_DAMPING_FACTOR.getValue();
             } else if (isNegative(wordsAndEmoticons.get(closeTokenIndex))) {
                 tempValence *= Valence.NEGATIVE_WORD_DAMPING_FACTOR.getValue();
@@ -205,45 +203,46 @@ public final class SentimentAnalyzer {
      * @param currentItemPosition current tokens position
      * @return adjusted valence
      */
-    private float checkForIdioms(float currentValence, int currentItemPosition) {
+    private float checkForIdioms(final float currentValence,
+                                 final int currentItemPosition) {
         final List<String> wordsAndEmoticons = inputStringProperties.getWordsAndEmoticons();
         final String currentWord = wordsAndEmoticons.get(currentItemPosition);
         final String oneWordLeftToCurrentWord =
-            wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_UNIGRAM_WINDOW);
+                wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_UNIGRAM_WINDOW);
         final String twoWordsLeftToCurrentWord =
-            wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_BIGRAM_WINDOW);
+                wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_BIGRAM_WINDOW);
         final String threeWordsLeftToCurrentWord =
-            wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_TRIGRAM_WINDOW);
+                wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_TRIGRAM_WINDOW);
 
         final String bigramFormat = "%s %s";
         final String trigramFormat = "%s %s %s";
 
         final String leftBiGramFromCurrent = String.format(
-            bigramFormat,
-            oneWordLeftToCurrentWord,
-            currentWord
+                bigramFormat,
+                oneWordLeftToCurrentWord,
+                currentWord
         );
         final String leftTriGramFromCurrent = String.format(
-            trigramFormat,
-            twoWordsLeftToCurrentWord,
-            oneWordLeftToCurrentWord,
-            currentWord
+                trigramFormat,
+                twoWordsLeftToCurrentWord,
+                oneWordLeftToCurrentWord,
+                currentWord
         );
         final String leftBiGramFromOnePrevious = String.format(
-            bigramFormat,
-            twoWordsLeftToCurrentWord,
-            oneWordLeftToCurrentWord
+                bigramFormat,
+                twoWordsLeftToCurrentWord,
+                oneWordLeftToCurrentWord
         );
         final String leftTriGramFromOnePrevious = String.format(
-            trigramFormat,
-            threeWordsLeftToCurrentWord,
-            twoWordsLeftToCurrentWord,
-            oneWordLeftToCurrentWord
+                trigramFormat,
+                threeWordsLeftToCurrentWord,
+                twoWordsLeftToCurrentWord,
+                oneWordLeftToCurrentWord
         );
         final String leftBiGramFromTwoPrevious = String.format(
-            bigramFormat,
-            threeWordsLeftToCurrentWord,
-            twoWordsLeftToCurrentWord
+                bigramFormat,
+                threeWordsLeftToCurrentWord,
+                twoWordsLeftToCurrentWord
         );
 
         final ArrayList<String> leftGramSequences = new ArrayList<>();
@@ -253,7 +252,9 @@ public final class SentimentAnalyzer {
         leftGramSequences.add(leftTriGramFromOnePrevious);
         leftGramSequences.add(leftBiGramFromTwoPrevious);
 
-        logger.debug("Grams: " + leftGramSequences);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Grams: " + leftGramSequences);
+        }
 
         float tempValence = currentValence;
 
@@ -266,9 +267,9 @@ public final class SentimentAnalyzer {
 
         if (wordsAndEmoticons.size() - 1 > currentItemPosition) {
             final String rightBiGramFromCurrent = String.format(
-                bigramFormat,
-                wordsAndEmoticons.get(currentItemPosition),
-                wordsAndEmoticons.get(currentItemPosition + 1)
+                    bigramFormat,
+                    wordsAndEmoticons.get(currentItemPosition),
+                    wordsAndEmoticons.get(currentItemPosition + 1)
             );
 
             if (Utils.getSentimentLadenIdioms().containsKey(rightBiGramFromCurrent)) {
@@ -278,10 +279,10 @@ public final class SentimentAnalyzer {
 
         if (wordsAndEmoticons.size() - 1 > currentItemPosition + 1) {
             final String rightTriGramFromCurrent = String.format(
-                trigramFormat,
-                wordsAndEmoticons.get(currentItemPosition),
-                wordsAndEmoticons.get(currentItemPosition + 1),
-                wordsAndEmoticons.get(currentItemPosition + 2)
+                    trigramFormat,
+                    wordsAndEmoticons.get(currentItemPosition),
+                    wordsAndEmoticons.get(currentItemPosition + 1),
+                    wordsAndEmoticons.get(currentItemPosition + 2)
             );
             if (Utils.getSentimentLadenIdioms().containsKey(rightTriGramFromCurrent)) {
                 tempValence = Utils.getSentimentLadenIdioms().get(rightTriGramFromCurrent);
@@ -289,7 +290,7 @@ public final class SentimentAnalyzer {
         }
 
         if (Utils.getBoosterDictionary().containsKey(leftBiGramFromTwoPrevious)
-            || Utils.getBoosterDictionary().containsKey(leftBiGramFromOnePrevious)) {
+                || Utils.getBoosterDictionary().containsKey(leftBiGramFromOnePrevious)) {
             tempValence += Valence.DEFAULT_DAMPING.getValue();
         }
 
@@ -310,10 +311,12 @@ public final class SentimentAnalyzer {
             final int currentItemPosition = wordsAndEmoticons.indexOf(currentItem);
             final String currentItemLower = currentItem.toLowerCase();
 
-            logger.debug("Current token, \"" + currentItem + "\" with index, i = " + currentItemPosition);
-            logger.debug("Sentiment State before \"kind of\" processing: " + sentiments);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Current token, \"" + currentItem + "\" with index, i = " + currentItemPosition);
+                logger.debug("Sentiment State before \"kind of\" processing: " + sentiments);
+            }
 
-            /**
+            /*
              * This section performs the following evaluation:
              * If the term at currentItemPosition is followed by "kind of" or the it is present in
              * {@link Utils#BoosterDictionary}, add the currentValence to sentiment array and break
@@ -322,27 +325,31 @@ public final class SentimentAnalyzer {
              * If currentValence was 0.0, then current word's valence will also be 0.0.
              */
             if ((currentItemPosition < wordsAndEmoticons.size() - 1
-                && currentItemLower.equals(SentimentModifyingTokens.KIND.getValue())
-                && wordsAndEmoticons.get(currentItemPosition + 1).toLowerCase()
-                .equals(SentimentModifyingTokens.OF.getValue()))
-                || Utils.getBoosterDictionary().containsKey(currentItemLower)) {
+                    && currentItemLower.equals(SentimentModifyingTokens.KIND.getValue())
+                    && wordsAndEmoticons.get(currentItemPosition + 1).toLowerCase()
+                    .equals(SentimentModifyingTokens.OF.getValue()))
+                    || Utils.getBoosterDictionary().containsKey(currentItemLower)) {
                 sentiments.add(currentValence);
                 continue;
             }
 
-            logger.debug("Sentiment State after \"kind of\" processing: " + sentiments);
-            logger.debug(String.format("Current Valence is %f for \"%s\"", currentValence, currentItem));
+            if (logger.isDebugEnabled()) {
+                logger.debug("Sentiment State after \"kind of\" processing: " + sentiments);
+                logger.debug(String.format("Current Valence is %f for \"%s\"", currentValence, currentItem));
+            }
 
-            /**
+            /*
              * If current item in lowercase is in {@link Utils#WordValenceDictionary}...
              */
             if (Utils.getWordValenceDictionary().containsKey(currentItemLower)) {
                 currentValence = Utils.getWordValenceDictionary().get(currentItemLower);
 
-                logger.debug("Current currentItem isUpper(): " + Utils.isUpper(currentItem));
-                logger.debug("Current currentItem isCapDiff(): " + inputStringProperties.isCapDiff());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Current currentItem isUpper(): " + Utils.isUpper(currentItem));
+                    logger.debug("Current currentItem isCapDiff(): " + inputStringProperties.isCapDiff());
+                }
 
-                /**
+                /*
                  * If current item is all in uppercase and the input string has yelling words,
                  * accordingly adjust currentValence.
                  */
@@ -354,9 +361,11 @@ public final class SentimentAnalyzer {
                     }
                 }
 
-                logger.debug(String.format("Current Valence post all CAPS checks: %f", currentValence));
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format("Current Valence post all CAPS checks: %f", currentValence));
+                }
 
-                /**
+                /*
                  * "distance" is the window size.
                  * e.g. "The plot was good, but the characters are uncompelling.",
                  * if the current item is "characters", then at:
@@ -369,19 +378,22 @@ public final class SentimentAnalyzer {
                     int closeTokenIndex = currentItemPosition - (distance + 1);
                     if (closeTokenIndex < 0) {
                         closeTokenIndex =
-                            inputStringProperties.getWordsAndEmoticons().size() - Math.abs(closeTokenIndex);
+                                inputStringProperties.getWordsAndEmoticons().size() - Math.abs(closeTokenIndex);
                     }
 
                     if ((currentItemPosition > distance)
-                        && !Utils.getWordValenceDictionary().containsKey(wordsAndEmoticons.get(closeTokenIndex)
-                        .toLowerCase())) {
+                            && !Utils.getWordValenceDictionary().containsKey(wordsAndEmoticons.get(closeTokenIndex)
+                            .toLowerCase())) {
 
-                        logger.debug(String.format("Current Valence pre gramBasedValence: %f", currentValence));
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(String.format("Current Valence pre gramBasedValence: %f", currentValence));
+                        }
                         float gramBasedValence =
-                            valenceModifier(wordsAndEmoticons.get(closeTokenIndex), currentValence);
-                        logger.debug(String.format("Current Valence post gramBasedValence: %f", currentValence));
-
-                        /**
+                                valenceModifier(wordsAndEmoticons.get(closeTokenIndex), currentValence);
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(String.format("Current Valence post gramBasedValence: %f", currentValence));
+                        }
+                        /*
                          * At distance of 1, reduce current gram's valence by 5%.
                          * At distance of 2, reduce current gram's valence by 10%.
                          */
@@ -393,18 +405,26 @@ public final class SentimentAnalyzer {
                             }
                         }
                         currentValence += gramBasedValence;
-                        logger.debug(String.format("Current Valence post gramBasedValence and "
-                            + "distance based damping: %f", currentValence));
+
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(String.format("Current Valence post gramBasedValence and "
+                                    + "distance based damping: %f", currentValence));
+                        }
 
                         currentValence = checkForNever(currentValence, distance, currentItemPosition, closeTokenIndex);
-                        logger.debug(String.format("Current Valence post \"never\" check: %f", currentValence));
 
-                        /**
+                        if (logger.isDebugEnabled()) {
+                            logger.debug(String.format("Current Valence post \"never\" check: %f", currentValence));
+                        }
+
+                        /*
                          * At a distance of 2, we check for idioms in bi-grams and tri-grams around currentItemPosition.
                          */
                         if (distance == 2) {
                             currentValence = checkForIdioms(currentValence, currentItemPosition);
-                            logger.debug(String.format("Current Valence post Idiom check: %f", currentValence));
+                            if (logger.isDebugEnabled()) {
+                                logger.debug(String.format("Current Valence post Idiom check: %f", currentValence));
+                            }
                         }
                     }
                     distance++;
@@ -415,10 +435,13 @@ public final class SentimentAnalyzer {
             sentiments.add(currentValence);
         }
 
-        logger.debug("Sentiment state after first pass through tokens: " + sentiments);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Sentiment state after first pass through tokens: " + sentiments);
+        }
         sentiments = checkConjunctionBut(wordsAndEmoticons, sentiments);
-        logger.debug("Sentiment state after checking conjunctions: " + sentiments);
-
+        if (logger.isDebugEnabled()) {
+            logger.debug("Sentiment state after checking conjunctions: " + sentiments);
+        }
         return sentiments;
     }
 
@@ -426,10 +449,11 @@ public final class SentimentAnalyzer {
      * This methods calculates the positive, negative and neutral sentiment from the sentiment values of the input
      * string.
      *
-     * @param tokenWiseSentimentState valence of the each token in input string
+     * @param tokenWiseSentimentStateParam valence of the each token in input string
      * @return the positive, negative and neutral sentiment as an List
      */
-    private List<Float> siftSentimentScores(List<Float> tokenWiseSentimentState) {
+    private List<Float> siftSentimentScores(final List<Float> tokenWiseSentimentStateParam) {
+        final List<Float> tokenWiseSentimentState = Collections.unmodifiableList(tokenWiseSentimentStateParam);
         float positiveSentimentScore = 0.0F;
         float negativeSentimentScore = 0.0F;
         int neutralSentimentCount = 0;
@@ -443,34 +467,36 @@ public final class SentimentAnalyzer {
             }
         }
         return new ArrayList<>(
-            Arrays.asList(
-                positiveSentimentScore,
-                negativeSentimentScore,
-                (float) neutralSentimentCount
-            )
+                Arrays.asList(
+                        positiveSentimentScore,
+                        negativeSentimentScore,
+                        (float) neutralSentimentCount
+                )
         );
     }
 
     /**
      * Convert the lower level token wise valence to a higher level polarity scores.
      *
-     * @param tokenWiseSentimentState the tokenwise scores of the input string
+     * @param tokenWiseSentimentStateParam the tokenwise scores of the input string
      * @return the positive, negative, neutral and compound polarity scores as a map
      */
-    private Map<String, Float> getPolarityScores(List<Float> tokenWiseSentimentState) {
+    private Map<String, Float> getPolarityScores(List<Float> tokenWiseSentimentStateParam) {
+        final List<Float> tokenWiseSentimentState = Collections.unmodifiableList(tokenWiseSentimentStateParam);
         final Map<String, Float> result = new HashMap<>();
         if (!tokenWiseSentimentState.isEmpty()) {
-            /**
+            /*
              * Compute the total valence.
              */
             float totalValence = 0.0F;
             for (Float valence : tokenWiseSentimentState) {
                 totalValence += valence;
             }
+            if (logger.isDebugEnabled()) {
+                logger.debug("Total valence: " + totalValence);
+            }
 
-            logger.debug("Total valence: " + totalValence);
-
-            /**
+            /*
              * Adjust the total valence score on the basis of the punctuations in the input string.
              */
             final float punctuationAmplifier = boostByPunctuation();
@@ -481,19 +507,23 @@ public final class SentimentAnalyzer {
                 totalValence -= punctuationAmplifier;
             }
 
-            logger.debug("Total valence after boost/damp by punctuation: " + totalValence);
-            logger.debug("Final token-wise sentiment state: " + tokenWiseSentimentState);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Total valence after boost/damp by punctuation: " + totalValence);
+                logger.debug("Final token-wise sentiment state: " + tokenWiseSentimentState);
+            }
 
             final List<Float> siftedScores = siftSentimentScores(tokenWiseSentimentState);
             float positiveSentimentScore = siftedScores.get(0);
             float negativeSentimentScore = siftedScores.get(1);
             final int neutralSentimentCount = Math.round(siftedScores.get(2));
 
-            logger.debug(String.format("Post Sift Sentiment Scores: %s %s %s",
-                positiveSentimentScore,
-                negativeSentimentScore,
-                neutralSentimentCount
-            ));
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Post Sift Sentiment Scores: %s %s %s",
+                        positiveSentimentScore,
+                        negativeSentimentScore,
+                        neutralSentimentCount
+                ));
+            }
 
             if (positiveSentimentScore > Math.abs(negativeSentimentScore)) {
                 positiveSentimentScore += punctuationAmplifier;
@@ -502,29 +532,35 @@ public final class SentimentAnalyzer {
             }
 
             final float normalizationFactor = positiveSentimentScore + Math.abs(negativeSentimentScore)
-                + neutralSentimentCount;
+                    + neutralSentimentCount;
 
-            logger.debug("Normalization Factor: " + normalizationFactor);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Normalization Factor: " + normalizationFactor);
+            }
 
             final float compoundPolarity = normalizeScore(totalValence);
 
-            logger.debug(String.format("Pre-Normalized Scores: %s %s %s %s",
-                Math.abs(positiveSentimentScore),
-                Math.abs(negativeSentimentScore),
-                Math.abs(neutralSentimentCount),
-                compoundPolarity
-            ));
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Pre-Normalized Scores: %s %s %s %s",
+                        Math.abs(positiveSentimentScore),
+                        Math.abs(negativeSentimentScore),
+                        Math.abs(neutralSentimentCount),
+                        compoundPolarity
+                ));
+            }
 
             final float absolutePositivePolarity = Math.abs(positiveSentimentScore / normalizationFactor);
             final float absoluteNegativePolarity = Math.abs(negativeSentimentScore / normalizationFactor);
             final float absoluteNeutralPolarity = Math.abs(neutralSentimentCount / normalizationFactor);
 
-            logger.debug(String.format("Pre-Round Scores: %s %s %s %s",
-                absolutePositivePolarity,
-                absoluteNegativePolarity,
-                absoluteNeutralPolarity,
-                compoundPolarity
-            ));
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Pre-Round Scores: %s %s %s %s",
+                        absolutePositivePolarity,
+                        absoluteNegativePolarity,
+                        absoluteNeutralPolarity,
+                        compoundPolarity
+                ));
+            }
 
             final float normalizedPositivePolarity = roundDecimal(absolutePositivePolarity, 3);
             final float normalizedNegativePolarity = roundDecimal(absoluteNegativePolarity, 3);
@@ -562,9 +598,9 @@ public final class SentimentAnalyzer {
      */
     private float boostByExclamation() {
         final int exclamationCount =
-            StringUtils.countMatches(inputString, SentimentModifyingTokens.EXCLAMATION_MARK.getValue());
+                StringUtils.countMatches(inputString, SentimentModifyingTokens.EXCLAMATION_MARK.getValue());
         return Math.min(exclamationCount, Constants.MAX_EXCLAMATION_MARKS)
-            * Valence.EXCLAMATION_BOOSTING.getValue();
+                * Valence.EXCLAMATION_BOOSTING.getValue();
     }
 
     /**
@@ -574,7 +610,7 @@ public final class SentimentAnalyzer {
      */
     private float boostByQuestionMark() {
         final int questionMarkCount =
-            StringUtils.countMatches(inputString, SentimentModifyingTokens.QUESTION_MARK.getValue());
+                StringUtils.countMatches(inputString, SentimentModifyingTokens.QUESTION_MARK.getValue());
         float questionMarkAmplifier = 0.0F;
         if (questionMarkCount > 1) {
             if (questionMarkCount <= Constants.MAX_QUESTION_MARKS) {
@@ -589,11 +625,15 @@ public final class SentimentAnalyzer {
     /**
      * This methods manages the effect of contrastive conjunctions like "but" on the valence of a token.
      *
-     * @param inputTokens             list of token and/or emoticons in the input string
-     * @param tokenWiseSentimentState current token wise sentiment scores
+     * @param inputTokensParam             list of token and/or emoticons in the input string
+     * @param tokenWiseSentimentStateParam current token wise sentiment scores
      * @return adjusted token wise sentiment scores
      */
-    private List<Float> checkConjunctionBut(List<String> inputTokens, List<Float> tokenWiseSentimentState) {
+    private List<Float> checkConjunctionBut(final List<String> inputTokensParam,
+                                            final List<Float> tokenWiseSentimentStateParam) {
+        final List<String> inputTokens=Collections.unmodifiableList(inputTokensParam);
+        final List<Float> tokenWiseSentimentState=new ArrayList<>(tokenWiseSentimentStateParam);
+
         int indexOfConjunction = inputTokens.indexOf(SentimentModifyingTokens.BUT.getValue());
         if (indexOfConjunction < 0) {
             indexOfConjunction = inputTokens.indexOf(SentimentModifyingTokens.BUT.getValue().toUpperCase());
@@ -616,28 +656,31 @@ public final class SentimentAnalyzer {
      * Check for the cases where you have phrases having "least" in the words preceding the token at
      * currentItemPosition and accordingly adjust the valence.
      *
-     * @param currentItemPosition position of the token in wordsAndEmoticons around which we will search for "least"
-     *                            type phrases
-     * @param wordsAndEmoticons   list of token and/or emoticons in the input string
-     * @param currentValence      valence of the token at currentItemPosition
+     * @param currentItemPosition      position of the token in wordsAndEmoticons around which we will search for "least"
+     *                                 type phrases
+     * @param wordsAndEmoticonsParam   list of token and/or emoticons in the input string
+     * @param currentValence           valence of the token at currentItemPosition
      * @return adjusted currentValence
      */
-    private float adjustIfHasAtLeast(int currentItemPosition, List<String> wordsAndEmoticons, float currentValence) {
+    private float adjustIfHasAtLeast(final int currentItemPosition,
+                                     final List<String> wordsAndEmoticonsParam,
+                                     final float currentValence) {
+        final List<String> wordsAndEmoticons=Collections.unmodifiableList(wordsAndEmoticonsParam);
         float valence = currentValence;
         if (currentItemPosition > 1
-            && !Utils.getWordValenceDictionary().containsKey(wordsAndEmoticons.get(currentItemPosition - 1)
-            .toLowerCase())
-            && wordsAndEmoticons.get(currentItemPosition - 1).toLowerCase()
-            .equals(SentimentModifyingTokens.LEAST.getValue())) {
+                && !Utils.getWordValenceDictionary().containsKey(wordsAndEmoticons.get(currentItemPosition - 1)
+                .toLowerCase())
+                && wordsAndEmoticons.get(currentItemPosition - 1).toLowerCase()
+                .equals(SentimentModifyingTokens.LEAST.getValue())) {
             if (!(wordsAndEmoticons.get(currentItemPosition - 2).toLowerCase()
-                .equals(SentimentModifyingTokens.AT.getValue())
-                || wordsAndEmoticons.get(currentItemPosition - 2).toLowerCase()
-                .equals(SentimentModifyingTokens.VERY.getValue()))) {
+                    .equals(SentimentModifyingTokens.AT.getValue())
+                    || wordsAndEmoticons.get(currentItemPosition - 2).toLowerCase()
+                    .equals(SentimentModifyingTokens.VERY.getValue()))) {
                 valence *= Valence.NEGATIVE_WORD_DAMPING_FACTOR.getValue();
             }
         } else if (currentItemPosition > 0 && !Utils.getWordValenceDictionary()
-            .containsKey(wordsAndEmoticons.get(currentItemPosition - 1).toLowerCase())
-            && wordsAndEmoticons.get(currentItemPosition - 1).equals(SentimentModifyingTokens.LEAST.getValue())) {
+                .containsKey(wordsAndEmoticons.get(currentItemPosition - 1).toLowerCase())
+                && wordsAndEmoticons.get(currentItemPosition - 1).equals(SentimentModifyingTokens.LEAST.getValue())) {
             valence *= Valence.NEGATIVE_WORD_DAMPING_FACTOR.getValue();
         }
         return valence;
@@ -649,18 +692,19 @@ public final class SentimentAnalyzer {
      * @param token current token
      * @return true iff token has "n't" in the end
      */
-    private boolean hasContraction(String token) {
+    private boolean hasContraction(final String token) {
         return token.endsWith(SentimentModifyingTokens.CONTRACTION.getValue());
     }
 
     /**
      * Check if token belongs to a pre-defined list of negative words. e.g. {@link Utils#NEGATIVE_WORDS}.
      *
-     * @param token       current token
-     * @param newNegWords set of negative words
-     * @return true iff token belongs to newNegWords
+     * @param token            current token
+     * @param newNegWordsParam set of negative words
+     * @return true if token belongs to newNegWords
      */
-    private boolean hasNegativeWord(String token, Set<String> newNegWords) {
+    private boolean hasNegativeWord(final String token, final Set<String> newNegWordsParam) {
+        final Set<String> newNegWords=Collections.unmodifiableSet(newNegWordsParam);
         return newNegWords.contains(token);
     }
 
@@ -672,7 +716,7 @@ public final class SentimentAnalyzer {
      * @param checkContractions flag to check "n't" in end of token
      * @return true iff token is in newNegWords or if checkContractions is true, token should have "n't" in its end
      */
-    private boolean isNegative(String token, boolean checkContractions) {
+    private boolean isNegative(final String token, final boolean checkContractions) {
         final boolean result = hasNegativeWord(token, Utils.NEGATIVE_WORDS);
         if (!checkContractions) {
             return result;
@@ -686,7 +730,7 @@ public final class SentimentAnalyzer {
      * @param token current token
      * @return true iff token is in {@link Utils#NEGATIVE_WORDS} or token has "n't" in its end
      */
-    private boolean isNegative(String token) {
+    private boolean isNegative(final String token) {
         return isNegative(token, true);
     }
 
@@ -697,7 +741,7 @@ public final class SentimentAnalyzer {
      * @param alpha estimated max value
      * @return normalized value of score
      */
-    private float normalizeScore(float score, float alpha) {
+    private float normalizeScore(final float score, final float alpha) {
         final double normalizedScore = score / Math.sqrt((score * score) + alpha);
         return (float) normalizedScore;
     }
@@ -708,7 +752,7 @@ public final class SentimentAnalyzer {
      * @param score score
      * @return normalized value of score
      */
-    private float normalizeScore(float score) {
+    private float normalizeScore(final float score) {
         return normalizeScore(score, Constants.DEFAULT_ALPHA);
     }
 
@@ -719,7 +763,7 @@ public final class SentimentAnalyzer {
      * @param noOfPlaces   no. of decimal places
      * @return rounded float value
      */
-    private static float roundDecimal(float currentValue, int noOfPlaces) {
+    private static float roundDecimal(final float currentValue, final int noOfPlaces) {
         final float factor = (float) Math.pow(10.0, (double) noOfPlaces);
         final float number = Math.round(currentValue * factor);
         return number / factor;

@@ -54,7 +54,7 @@ class InputAnalyzer implements InputAnalyzerInterface {
      * @return tokens
      * @throws IOException if Lucene's analyzer encounters any error
      */
-    private List<String> tokenize(String inputString, boolean removePunctuation) throws IOException {
+    private List<String> tokenize(final String inputString, final boolean removePunctuation) throws IOException {
         final StringReader reader = new StringReader(inputString);
         final Tokenizer currentTokenizer;
         if (removePunctuation) {
@@ -85,7 +85,7 @@ class InputAnalyzer implements InputAnalyzerInterface {
      * {@inheritDoc}
      */
     @Override
-    public List<String> defaultSplit(String inputString) throws IOException {
+    public List<String> defaultSplit(final String inputString) throws IOException {
         return tokenize(inputString, false);
     }
 
@@ -95,7 +95,7 @@ class InputAnalyzer implements InputAnalyzerInterface {
      * {@inheritDoc}
      */
     @Override
-    public List<String> removePunctuation(String inputString) throws IOException {
+    public List<String> removePunctuation(final String inputString) throws IOException {
         return tokenize(inputString, true);
     }
 }

@@ -64,7 +64,7 @@ public final class TextProperties {
      * @param inputText the input string
      * @throws IOException if there is an issue with the lucene analyzers
      */
-    public TextProperties(String inputText) throws IOException {
+    public TextProperties(final String inputText) throws IOException {
         this.inputText = inputText;
         setWordsAndEmoticons();
         setCapDiff(isAllCapDifferential());
@@ -114,7 +114,7 @@ public final class TextProperties {
         this.wordsOnly = new InputAnalyzer().removePunctuation(inputText);
     }
 
-    private void setCapDiff(boolean capDiff) {
+    private void setCapDiff(final boolean capDiff) {
         this.isCapDiff = capDiff;
     }
 
@@ -122,6 +122,7 @@ public final class TextProperties {
         return wordsAndEmoticons;
     }
 
+    @SuppressWarnings("unused")
     public List<String> getWordsOnly() {
         return wordsOnly;
     }
