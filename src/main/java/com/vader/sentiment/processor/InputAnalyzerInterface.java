@@ -41,7 +41,7 @@ interface InputAnalyzerInterface {
      * @return tokens
      * @throws IOException if Lucene's analyzer encounters any error
      */
-    List<String> defaultSplit(String inputString) throws IOException;
+    List<String> keepPunctuation(String inputString) throws IOException;
 
     /**
      * This is {@link InputAnalyzer#tokenize(String, boolean)} with removePunctuation set as false. So, this

@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Preconditions;
 import com.vader.sentiment.processor.TextProperties;
 import com.vader.sentiment.util.Constants;
 import com.vader.sentiment.util.ScoreType;
@@ -130,13 +131,13 @@ public final class SentimentAnalyzer {
      */
     private float valenceModifier(final String precedingToken, final float currentValence) {
         float scalar = 0.0F;
-        final String precedingWordLower = precedingToken.toLowerCase();
-        if (Utils.getBoosterDictionary().containsKey(precedingWordLower)) {
-            scalar = Utils.getBoosterDictionary().get(precedingWordLower);
+        final String precedingTokenLower = precedingToken.toLowerCase();
+        if (Utils.getBoosterDictionary().containsKey(precedingTokenLower)) {
+            scalar = Utils.getBoosterDictionary().get(precedingTokenLower);
             if (currentValence < 0.0F) {
                 scalar = -scalar;
             }
-            if (Utils.isUpper(precedingToken) && inputStringProperties.isCapDiff()) {
+            if (Utils.isUpper(precedingToken) && inputStringProperties.isYelling()) {
                 if (currentValence > 0.0F) {
                     scalar += Valence.ALL_CAPS_FACTOR.getValue();
                 } else {
@@ -157,13 +158,12 @@ public final class SentimentAnalyzer {
      * @param distance            gram window size
      * @param currentItemPosition position of the current token
      * @param closeTokenIndex     token at the distance position from current item
+     * @param wordsAndEmoticons   tokenized version of the input text
      * @return adjusted valence
      */
-    private float checkForNever(final float currentValence,
-                                final int distance,
-                                final int currentItemPosition,
-                                final int closeTokenIndex) {
-        final List<String> wordsAndEmoticons = inputStringProperties.getWordsAndEmoticons();
+    private float checkForNever(final float currentValence, final int distance,
+                                final int currentItemPosition, final int closeTokenIndex,
+                                final List<String> wordsAndEmoticons) {
         float tempValence = currentValence;
 
         if (distance == 0) {
@@ -204,105 +204,141 @@ public final class SentimentAnalyzer {
     }
 
     /**
-     * Search if the any bi-gram/tri-grams around the currentItemPosition contains any idioms defined
-     * in {@link Utils#SentimentLadenIdioms}. Adjust the current valence if there are any idioms found.
+     * This method builds the possible to n-grams starting from last token in the token list.
+     * VADER uses bi-grams and tri-grams only, so here minGramLength will be 2 and maxGramLength
+     * will be 3.
      *
-     * @param currentValence      valence
-     * @param currentItemPosition current tokens position
-     * @return adjusted valence
+     * @param tokenList                    The list of tokens for which we want to compute the n-grams.
+     * @param minGramLength                The minimum size of the possible n-grams.
+     * @param maxGramLength                The maximum size of the possible n-grams.
+     * @param startPosition                The position of the token from which we'll extract the tokens.
+     * @param maxDistanceFromStartPosition The max distance from the end of the current gram and the startPosition.
+     * @return list of all possible to minGramLength-grams and maxGramLength-grams starting from startPosition.
      */
-    private float checkForIdioms(final float currentValence,
-                                 final int currentItemPosition) {
-        final List<String> wordsAndEmoticons = inputStringProperties.getWordsAndEmoticons();
-        final String currentWord = wordsAndEmoticons.get(currentItemPosition);
-        final String oneWordLeftToCurrentWord =
-            wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_UNIGRAM_WINDOW);
-        final String twoWordsLeftToCurrentWord =
-            wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_BIGRAM_WINDOW);
-        final String threeWordsLeftToCurrentWord =
-            wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_TRIGRAM_WINDOW);
+    private static List<String> getLeftGrams(final List<String> tokenList, final int minGramLength,
+                                             final int maxGramLength, final int startPosition,
+                                             final int maxDistanceFromStartPosition) {
+        Preconditions.checkArgument(minGramLength > 0 && maxGramLength > 0,
+            "Left Gram lengths should not be negative or zero.");
+        Preconditions.checkArgument(maxGramLength >= minGramLength,
+            "Maximum left gram length should be at least equal to the minimum value.");
+        Preconditions.checkArgument(tokenList != null);
 
-        final String bigramFormat = "%s %s";
-        final String trigramFormat = "%s %s %s";
-
-        final String leftBiGramFromCurrent = String.format(
-            bigramFormat,
-            oneWordLeftToCurrentWord,
-            currentWord
-        );
-        final String leftTriGramFromCurrent = String.format(
-            trigramFormat,
-            twoWordsLeftToCurrentWord,
-            oneWordLeftToCurrentWord,
-            currentWord
-        );
-        final String leftBiGramFromOnePrevious = String.format(
-            bigramFormat,
-            twoWordsLeftToCurrentWord,
-            oneWordLeftToCurrentWord
-        );
-        final String leftTriGramFromOnePrevious = String.format(
-            trigramFormat,
-            threeWordsLeftToCurrentWord,
-            twoWordsLeftToCurrentWord,
-            oneWordLeftToCurrentWord
-        );
-        final String leftBiGramFromTwoPrevious = String.format(
-            bigramFormat,
-            threeWordsLeftToCurrentWord,
-            twoWordsLeftToCurrentWord
-        );
-
-        final List<String> leftGramSequences = new ArrayList<>();
-        leftGramSequences.add(leftBiGramFromCurrent);
-        leftGramSequences.add(leftTriGramFromCurrent);
-        leftGramSequences.add(leftBiGramFromOnePrevious);
-        leftGramSequences.add(leftTriGramFromOnePrevious);
-        leftGramSequences.add(leftBiGramFromTwoPrevious);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Grams: " + leftGramSequences);
+        final int noOfTokens = tokenList.size();
+        if (noOfTokens < minGramLength) {
+            return Collections.emptyList();
         }
 
-        float tempValence = currentValence;
+        final List<String> result = new ArrayList<>();
+        for (int end = startPosition; end > 0; end--) {
+            final int windowStart = end - minGramLength + 1;
+            final int windowEnd = end - maxGramLength;
+            String currentSuffix = tokenList.get(end);
+            for (int start = windowStart; start >= ((windowEnd < 0) ? 0 : Math.max(0, windowEnd) + 1); start--) {
+                currentSuffix = tokenList.get(start) + Constants.SPACE_SEPARATOR + currentSuffix;
+                result.add(currentSuffix);
+                if ((startPosition - end) == maxDistanceFromStartPosition) {
+                    return result;
+                }
+            }
+        }
+        return result;
+    }
 
+    /**
+     * This method builds the first possible n-grams starting from startPosition in the token list.
+     * VADER uses bi-grams and tri-grams only, so here minGramLength will be 2 and maxGramLength
+     * will be 3.
+     *
+     * @param tokenList     The list of tokens for which we want to compute the n-grams.
+     * @param minGramLength The minimum size of the possible n-grams.
+     * @param maxGramLength The maximum size of the possible n-grams.
+     * @param startPosition The position of the token from which we'll extract the tokens.
+     * @return list of the first to minGramLength-grams and maxGramLength-grams starting from
+     */
+    public static List<String> getFirstRightGrams(final List<String> tokenList, final int minGramLength,
+                                                  final int maxGramLength, final int startPosition) {
+        Preconditions.checkArgument(minGramLength > 0 && maxGramLength > 0,
+            "Right Gram lengths should not be negative or zero.");
+        Preconditions.checkArgument(maxGramLength >= minGramLength,
+            "Maximum right gram length should be at least equal to the minimum value.");
+        Preconditions.checkArgument(tokenList != null);
+
+        final int noOfTokens = tokenList.size();
+        if (noOfTokens < minGramLength) {
+            return Collections.emptyList();
+        }
+
+        final List<String> result = new ArrayList<>();
+        String currentGram = tokenList.get(startPosition);
+        for (int i = minGramLength; i <= maxGramLength; i++) {
+            final int endPosition = startPosition + i - 1;
+            if (endPosition > tokenList.size() - 1) {
+                break;
+            }
+            currentGram += Constants.SPACE_SEPARATOR + tokenList.get(endPosition);
+            result.add(currentGram);
+        }
+        return result;
+    }
+
+    /**
+     * We check if the idioms present in {@link Utils#getSentimentLadenIdiomsValenceDictionary()} are present in
+     * left bi/tri-grams sequences.
+     *
+     * @param currentValence    current valence before checking for idioms.
+     * @param leftGramSequences list of all the left bi/tri-grams.
+     * @return adjusted valence.
+     */
+    private static float adjustValenceIfLeftGramsHaveIdioms(final float currentValence,
+                                                            final List<String> leftGramSequences) {
+        float tempValence = currentValence;
         for (String leftGramSequence : leftGramSequences) {
-            if (Utils.getSentimentLadenIdioms().containsKey(leftGramSequence)) {
-                tempValence = Utils.getSentimentLadenIdioms().get(leftGramSequence);
+            if (Utils.getSentimentLadenIdiomsValenceDictionary().containsKey(leftGramSequence)) {
+                tempValence = Utils.getSentimentLadenIdiomsValenceDictionary().get(leftGramSequence);
                 break;
             }
         }
 
-        if (wordsAndEmoticons.size() - 1 > currentItemPosition) {
-            final String rightBiGramFromCurrent = String.format(
-                bigramFormat,
-                wordsAndEmoticons.get(currentItemPosition),
-                wordsAndEmoticons.get(currentItemPosition + 1)
-            );
-
-            if (Utils.getSentimentLadenIdioms().containsKey(rightBiGramFromCurrent)) {
-                tempValence = Utils.getSentimentLadenIdioms().get(rightBiGramFromCurrent);
+        // Based on how getLeftGrams calculates grams, the bi-grams are at the all the even indices.
+        // VADER only deals with the 2 left most bi-grams in leftGramSequences.
+        for (int i = leftGramSequences.size() - 1; i <= 2; i--) {
+            if (Utils.getBoosterDictionary().containsKey(leftGramSequences.get(i))) {
+                tempValence += Valence.DEFAULT_DAMPING.getValue();
+                break;
             }
-        }
-
-        if (wordsAndEmoticons.size() - 1 > currentItemPosition + 1) {
-            final String rightTriGramFromCurrent = String.format(
-                trigramFormat,
-                wordsAndEmoticons.get(currentItemPosition),
-                wordsAndEmoticons.get(currentItemPosition + 1),
-                wordsAndEmoticons.get(currentItemPosition + 2)
-            );
-            if (Utils.getSentimentLadenIdioms().containsKey(rightTriGramFromCurrent)) {
-                tempValence = Utils.getSentimentLadenIdioms().get(rightTriGramFromCurrent);
-            }
-        }
-
-        if (Utils.getBoosterDictionary().containsKey(leftBiGramFromTwoPrevious)
-            || Utils.getBoosterDictionary().containsKey(leftBiGramFromOnePrevious)) {
-            tempValence += Valence.DEFAULT_DAMPING.getValue();
         }
 
         return tempValence;
+    }
+
+    /**
+     * Search if the any bi-gram/tri-grams around the currentItemPosition contains any idioms defined
+     * in {@link Utils#SentimentLadenIdiomsValenceDictionary}. Adjust the current valence if there are
+     * any idioms found.
+     *
+     * @param currentValence      valence to be adjusted
+     * @param currentItemPosition current tokens position
+     * @param wordsAndEmoticons   tokenized version of the input text
+     * @return adjusted valence
+     */
+    private float adjustValenceIfIdiomsFound(final float currentValence, final int currentItemPosition,
+                                             final List<String> wordsAndEmoticons) {
+        float newValence;
+
+        final List<String> leftGramSequences = getLeftGrams(wordsAndEmoticons, 2, 3,
+            currentItemPosition, 2);
+        newValence = adjustValenceIfLeftGramsHaveIdioms(currentValence, leftGramSequences);
+
+        final List<String> rightGramSequences = getFirstRightGrams(wordsAndEmoticons, 2, 3,
+            currentItemPosition);
+        for (String rightGramSequence : rightGramSequences) {
+            if (Utils.getSentimentLadenIdiomsValenceDictionary().containsKey(rightGramSequence)) {
+                newValence = Utils.getSentimentLadenIdiomsValenceDictionary().get(rightGramSequence);
+            }
+        }
+
+        return newValence;
     }
 
     /**
@@ -354,14 +390,14 @@ public final class SentimentAnalyzer {
 
                 if (logger.isDebugEnabled()) {
                     logger.debug("Current currentItem isUpper(): " + Utils.isUpper(currentItem));
-                    logger.debug("Current currentItem isCapDiff(): " + inputStringProperties.isCapDiff());
+                    logger.debug("Current currentItem isYelling(): " + inputStringProperties.isYelling());
                 }
 
                 /*
                  * If current item is all in uppercase and the input string has yelling words,
                  * accordingly adjust currentValence.
                  */
-                if (Utils.isUpper(currentItem) && inputStringProperties.isCapDiff()) {
+                if (Utils.isUpper(currentItem) && inputStringProperties.isYelling()) {
                     if (currentValence > 0.0) {
                         currentValence += Valence.ALL_CAPS_FACTOR.getValue();
                     } else {
@@ -385,8 +421,7 @@ public final class SentimentAnalyzer {
                 while (distance < Constants.MAX_GRAM_WINDOW_SIZE) {
                     int closeTokenIndex = currentItemPosition - (distance + 1);
                     if (closeTokenIndex < 0) {
-                        closeTokenIndex =
-                            inputStringProperties.getWordsAndEmoticons().size() - Math.abs(closeTokenIndex);
+                        closeTokenIndex = wordsAndEmoticons.size() - Math.abs(closeTokenIndex);
                     }
 
                     if ((currentItemPosition > distance)
@@ -419,7 +454,8 @@ public final class SentimentAnalyzer {
                                 + "distance based damping: %f", currentValence));
                         }
 
-                        currentValence = checkForNever(currentValence, distance, currentItemPosition, closeTokenIndex);
+                        currentValence = checkForNever(currentValence, distance, currentItemPosition,
+                            closeTokenIndex, wordsAndEmoticons);
 
                         if (logger.isDebugEnabled()) {
                             logger.debug(String.format("Current Valence post \"never\" check: %f", currentValence));
@@ -429,7 +465,8 @@ public final class SentimentAnalyzer {
                          * At a distance of 2, we check for idioms in bi-grams and tri-grams around currentItemPosition.
                          */
                         if (distance == 2) {
-                            currentValence = checkForIdioms(currentValence, currentItemPosition);
+                            currentValence = adjustValenceIfIdiomsFound(currentValence, currentItemPosition,
+                                wordsAndEmoticons);
                             if (logger.isDebugEnabled()) {
                                 logger.debug(String.format("Current Valence post Idiom check: %f", currentValence));
                             }
@@ -437,7 +474,7 @@ public final class SentimentAnalyzer {
                     }
                     distance++;
                 }
-                currentValence = adjustIfHasAtLeast(currentItemPosition, wordsAndEmoticons, currentValence);
+                currentValence = adjustValenceIfHasAtLeast(currentItemPosition, wordsAndEmoticons, currentValence);
             }
 
             sentiments.add(currentValence);
@@ -446,7 +483,7 @@ public final class SentimentAnalyzer {
         if (logger.isDebugEnabled()) {
             logger.debug("Sentiment state after first pass through tokens: " + sentiments);
         }
-        sentiments = checkConjunctionBut(wordsAndEmoticons, sentiments);
+        sentiments = adjustValenceIfHasConjunction(wordsAndEmoticons, sentiments);
         if (logger.isDebugEnabled()) {
             logger.debug("Sentiment state after checking conjunctions: " + sentiments);
         }
@@ -632,13 +669,14 @@ public final class SentimentAnalyzer {
 
     /**
      * This methods manages the effect of contrastive conjunctions like "but" on the valence of a token.
+     * "VADER" only support "but/BUT" as a conjunction that modifies the valence.
      *
      * @param inputTokensParam             list of token and/or emoticons in the input string
      * @param tokenWiseSentimentStateParam current token wise sentiment scores
      * @return adjusted token wise sentiment scores
      */
-    private List<Float> checkConjunctionBut(final List<String> inputTokensParam,
-                                            final List<Float> tokenWiseSentimentStateParam) {
+    private List<Float> adjustValenceIfHasConjunction(final List<String> inputTokensParam,
+                                                      final List<Float> tokenWiseSentimentStateParam) {
         final List<String> inputTokens = Collections.unmodifiableList(inputTokensParam);
         final List<Float> tokenWiseSentimentState = new ArrayList<>(tokenWiseSentimentStateParam);
 
@@ -670,9 +708,9 @@ public final class SentimentAnalyzer {
      * @param currentValence         valence of the token at currentItemPosition
      * @return adjusted currentValence
      */
-    private float adjustIfHasAtLeast(final int currentItemPosition,
-                                     final List<String> wordsAndEmoticonsParam,
-                                     final float currentValence) {
+    private float adjustValenceIfHasAtLeast(final int currentItemPosition,
+                                            final List<String> wordsAndEmoticonsParam,
+                                            final float currentValence) {
         final List<String> wordsAndEmoticons = Collections.unmodifiableList(wordsAndEmoticonsParam);
         float valence = currentValence;
         if (currentItemPosition > 1

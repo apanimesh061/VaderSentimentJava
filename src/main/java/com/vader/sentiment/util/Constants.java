@@ -81,6 +81,11 @@ public final class Constants {
     public static final String URL_PREFIX = "http://";
 
     /**
+     * The separator for a word N-gram.
+     */
+    public static final String SPACE_SEPARATOR = " ";
+
+    /**
      * Private constructor for utility class.
      */
     private Constants() {

@@ -35,6 +35,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableMap;
+
 /**
  * This class contains the constants that are the used by the sentiment analyzer.
  * The constants are same as the ones used in the official python implementation
@@ -45,11 +47,6 @@ import java.util.Set;
  * vaderSentiment Python module</a>
  */
 public final class Utils {
-    /**
-     * Class loader to get the path to the resources folder.
-     */
-    private static final ClassLoader CLASS_LOADER = Utils.class.getClassLoader();
-
     /**
      * List of possible punctuation marks.
      */
@@ -84,95 +81,87 @@ public final class Utils {
      * This dictionary holds a token and its corresponding boosting/dampening
      * factor for sentiment scoring.
      */
-    private static Map<String, Float> BoosterDictionary = new HashMap<>();
-
-    //CHECKSTYLE.OFF: ExecutableStatementCount
-    //CHECKSTYLE.OFF: JavaNCSS
-    static {
-        BoosterDictionary.put("decidedly", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("uber", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("barely", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("particularly", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("enormously", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("less", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("absolutely", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("kinda", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("flipping", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("awfully", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("purely", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("majorly", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("substantially", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("partly", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("remarkably", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("really", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("sort of", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("little", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("fricking", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("sorta", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("amazingly", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("kind of", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("just enough", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("fucking", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("occasionally", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("somewhat", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("kindof", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("friggin", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("incredibly", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("totally", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("marginally", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("more", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("considerably", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("fabulously", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("hardly", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("very", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("sortof", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("kind-of", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("scarcely", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("thoroughly", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("quite", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("most", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("completely", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("frigging", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("intensely", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("utterly", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("highly", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("extremely", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("unbelievably", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("almost", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("especially", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("fully", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("frickin", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("tremendously", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("exceptionally", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("flippin", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("hella", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("so", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("greatly", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("hugely", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("deeply", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("unusually", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("entirely", Valence.DEFAULT_BOOSTING.getValue());
-        BoosterDictionary.put("slightly", Valence.DEFAULT_DAMPING.getValue());
-        BoosterDictionary.put("effing", Valence.DEFAULT_BOOSTING.getValue());
-    }
-    //CHECKSTYLE.ON: ExecutableStatementCount
-    //CHECKSTYLE.ON: JavaNCSS
+    private static Map<String, Float> BoosterDictionary = ImmutableMap.<String, Float>builder()
+        .put("decidedly", Valence.DEFAULT_BOOSTING.getValue())
+        .put("uber", Valence.DEFAULT_BOOSTING.getValue())
+        .put("barely", Valence.DEFAULT_DAMPING.getValue())
+        .put("particularly", Valence.DEFAULT_BOOSTING.getValue())
+        .put("enormously", Valence.DEFAULT_BOOSTING.getValue())
+        .put("less", Valence.DEFAULT_DAMPING.getValue())
+        .put("absolutely", Valence.DEFAULT_BOOSTING.getValue())
+        .put("kinda", Valence.DEFAULT_DAMPING.getValue())
+        .put("flipping", Valence.DEFAULT_BOOSTING.getValue())
+        .put("awfully", Valence.DEFAULT_BOOSTING.getValue())
+        .put("purely", Valence.DEFAULT_BOOSTING.getValue())
+        .put("majorly", Valence.DEFAULT_BOOSTING.getValue())
+        .put("substantially", Valence.DEFAULT_BOOSTING.getValue())
+        .put("partly", Valence.DEFAULT_DAMPING.getValue())
+        .put("remarkably", Valence.DEFAULT_BOOSTING.getValue())
+        .put("really", Valence.DEFAULT_BOOSTING.getValue())
+        .put("sort of", Valence.DEFAULT_DAMPING.getValue())
+        .put("little", Valence.DEFAULT_DAMPING.getValue())
+        .put("fricking", Valence.DEFAULT_BOOSTING.getValue())
+        .put("sorta", Valence.DEFAULT_DAMPING.getValue())
+        .put("amazingly", Valence.DEFAULT_BOOSTING.getValue())
+        .put("kind of", Valence.DEFAULT_DAMPING.getValue())
+        .put("just enough", Valence.DEFAULT_DAMPING.getValue())
+        .put("fucking", Valence.DEFAULT_BOOSTING.getValue())
+        .put("occasionally", Valence.DEFAULT_DAMPING.getValue())
+        .put("somewhat", Valence.DEFAULT_DAMPING.getValue())
+        .put("kindof", Valence.DEFAULT_DAMPING.getValue())
+        .put("friggin", Valence.DEFAULT_BOOSTING.getValue())
+        .put("incredibly", Valence.DEFAULT_BOOSTING.getValue())
+        .put("totally", Valence.DEFAULT_BOOSTING.getValue())
+        .put("marginally", Valence.DEFAULT_DAMPING.getValue())
+        .put("more", Valence.DEFAULT_BOOSTING.getValue())
+        .put("considerably", Valence.DEFAULT_BOOSTING.getValue())
+        .put("fabulously", Valence.DEFAULT_BOOSTING.getValue())
+        .put("hardly", Valence.DEFAULT_DAMPING.getValue())
+        .put("very", Valence.DEFAULT_BOOSTING.getValue())
+        .put("sortof", Valence.DEFAULT_DAMPING.getValue())
+        .put("kind-of", Valence.DEFAULT_DAMPING.getValue())
+        .put("scarcely", Valence.DEFAULT_DAMPING.getValue())
+        .put("thoroughly", Valence.DEFAULT_BOOSTING.getValue())
+        .put("quite", Valence.DEFAULT_BOOSTING.getValue())
+        .put("most", Valence.DEFAULT_BOOSTING.getValue())
+        .put("completely", Valence.DEFAULT_BOOSTING.getValue())
+        .put("frigging", Valence.DEFAULT_BOOSTING.getValue())
+        .put("intensely", Valence.DEFAULT_BOOSTING.getValue())
+        .put("utterly", Valence.DEFAULT_BOOSTING.getValue())
+        .put("highly", Valence.DEFAULT_BOOSTING.getValue())
+        .put("extremely", Valence.DEFAULT_BOOSTING.getValue())
+        .put("unbelievably", Valence.DEFAULT_BOOSTING.getValue())
+        .put("almost", Valence.DEFAULT_DAMPING.getValue())
+        .put("especially", Valence.DEFAULT_BOOSTING.getValue())
+        .put("fully", Valence.DEFAULT_BOOSTING.getValue())
+        .put("frickin", Valence.DEFAULT_BOOSTING.getValue())
+        .put("tremendously", Valence.DEFAULT_BOOSTING.getValue())
+        .put("exceptionally", Valence.DEFAULT_BOOSTING.getValue())
+        .put("flippin", Valence.DEFAULT_BOOSTING.getValue())
+        .put("hella", Valence.DEFAULT_BOOSTING.getValue())
+        .put("so", Valence.DEFAULT_BOOSTING.getValue())
+        .put("greatly", Valence.DEFAULT_BOOSTING.getValue())
+        .put("hugely", Valence.DEFAULT_BOOSTING.getValue())
+        .put("deeply", Valence.DEFAULT_BOOSTING.getValue())
+        .put("unusually", Valence.DEFAULT_BOOSTING.getValue())
+        .put("entirely", Valence.DEFAULT_BOOSTING.getValue())
+        .put("slightly", Valence.DEFAULT_DAMPING.getValue())
+        .put("effing", Valence.DEFAULT_BOOSTING.getValue())
+        .build();
 
     /**
      * Idioms with their respective valencies.
      */
-    private static Map<String, Float> SentimentLadenIdioms = new HashMap<>();
-
     //CHECKSTYLE.OFF: MagicNumber
-    static {
-        SentimentLadenIdioms.put("cut the mustard", 2f);
-        SentimentLadenIdioms.put("bad ass", 1.5f);
-        SentimentLadenIdioms.put("kiss of death", -1.5f);
-        SentimentLadenIdioms.put("yeah right", -2f);
-        SentimentLadenIdioms.put("the bomb", 3f);
-        SentimentLadenIdioms.put("hand to mouth", -2f);
-        SentimentLadenIdioms.put("the shit", 3f);
-    }
+    private static Map<String, Float> SentimentLadenIdiomsValenceDictionary = ImmutableMap.<String, Float>builder()
+        .put("cut the mustard", 2f)
+        .put("bad ass", 1.5f)
+        .put("kiss of death", -1.5f)
+        .put("yeah right", -2f)
+        .put("the bomb", 3f)
+        .put("hand to mouth", -2f)
+        .put("the shit", 3f)
+        .build();
     //CHECKSTYLE.ON: MagicNumber
 
     /**
@@ -218,7 +207,8 @@ public final class Utils {
      * @return map of lexicons with their corresponding valence
      */
     private static Map<String, Float> readLexiconFile() {
-        final InputStream lexFile = CLASS_LOADER.getResourceAsStream("vader_sentiment_lexicon.txt");
+        final InputStream lexFile = Utils.class.getClassLoader()
+            .getResourceAsStream("vader_sentiment_lexicon.txt");
         final Map<String, Float> lexDictionary = new HashMap<>();
         if (lexFile != null) {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(lexFile))) {
@@ -236,8 +226,8 @@ public final class Utils {
         return lexDictionary;
     }
 
-    public static Map<String, Float> getSentimentLadenIdioms() {
-        return SentimentLadenIdioms;
+    public static Map<String, Float> getSentimentLadenIdiomsValenceDictionary() {
+        return SentimentLadenIdiomsValenceDictionary;
     }
 
     public static Map<String, Float> getBoosterDictionary() {

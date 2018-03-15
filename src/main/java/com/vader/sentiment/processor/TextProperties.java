@@ -56,7 +56,7 @@ public final class TextProperties {
     /**
      * Flags that specifies if the current string has yelling words.
      */
-    private boolean isCapDiff;
+    private boolean hasYellWords;
 
     /**
      * Parameterized constructor accepting the input string that will be processed.
@@ -67,7 +67,56 @@ public final class TextProperties {
     public TextProperties(final String inputText) throws IOException {
         this.inputText = inputText;
         setWordsAndEmoticons();
-        setCapDiff(isAllCapDifferential());
+        setHasYellWords(hasCapDifferential(getWordsAndEmoticons()));
+    }
+
+    /**
+     * Tokenize the input text in two steps:
+     * 1. Use Lucene analyzer to tokenize while preserving the punctuations, so that the emoticons are preserved.
+     * 2. Remove punctuations from a token, if adjacent to it without a space and replace it with the original token.
+     * e.g. going!!!! -> going OR !?!?there -> there
+     *
+     * @param unTokenizedText           original text to be analyzed.
+     * @param tokensWithoutPunctuations tokenized version of the input which has no punctuations.
+     * @return tokenized version which preserves all the punctuations so that emoticons are preserved.
+     * @throws IOException if there was an issue while Lucene was processing unTokenizedText
+     */
+    private List<String> tokensAftersKeepingEmoticons(String unTokenizedText,
+                                                      List<String> tokensWithoutPunctuations) throws IOException {
+        final List<String> wordsAndEmoticonsList = new InputAnalyzer().keepPunctuation(unTokenizedText);
+        return handleTokensWithAdjacentPunctuations(wordsAndEmoticonsList, tokensWithoutPunctuations);
+    }
+
+    /**
+     * Remove punctuations from a token, if adjacent to it without a space and replace it with the original token.
+     * e.g. going!!!! -> going OR !?!?there -> there
+     *
+     * @param tokensWithPunctuations    tokenized version of the input which has punctuations.
+     * @param tokensWithoutPunctuations tokenized version of the input which has no punctuations.
+     * @return a list of tokens.
+     */
+    private List<String> handleTokensWithAdjacentPunctuations(List<String> tokensWithPunctuations,
+                                                              List<String> tokensWithoutPunctuations) {
+        for (String currentWord : tokensWithoutPunctuations) {
+            for (String currentPunctuation : Utils.PUNCTUATION_LIST) {
+                final String wordPunct = currentWord + currentPunctuation;
+                Integer wordPunctCount = Collections.frequency(tokensWithPunctuations, wordPunct);
+                while (wordPunctCount > 0) {
+                    final int index = tokensWithPunctuations.indexOf(wordPunct);
+                    tokensWithPunctuations.set(index, currentWord);
+                    wordPunctCount--;
+                }
+
+                final String punctWord = currentPunctuation + currentWord;
+                Integer punctWordCount = Collections.frequency(tokensWithPunctuations, punctWord);
+                while (punctWordCount > 0) {
+                    final int index = tokensWithPunctuations.indexOf(punctWord);
+                    tokensWithPunctuations.set(index, currentWord);
+                    punctWordCount--;
+                }
+            }
+        }
+        return tokensWithPunctuations;
     }
 
     /**
@@ -78,30 +127,7 @@ public final class TextProperties {
      */
     private void setWordsAndEmoticons() throws IOException {
         setWordsOnly();
-
-        final List<String> wordsAndEmoticonsList = new InputAnalyzer().defaultSplit(inputText);
-        for (String currentWord : wordsOnly) {
-            for (String currentPunc : Utils.PUNCTUATION_LIST) {
-                final String wordPunct = currentWord + currentPunc;
-                Integer wordPunctCount = Collections.frequency(wordsAndEmoticonsList, wordPunct);
-                while (wordPunctCount > 0) {
-                    final int index = wordsAndEmoticonsList.indexOf(wordPunct);
-                    wordsAndEmoticonsList.remove(wordPunct);
-                    wordsAndEmoticonsList.add(index, currentWord);
-                    wordPunctCount = Collections.frequency(wordsAndEmoticonsList, wordPunct);
-                }
-
-                final String punctWord = currentPunc + currentWord;
-                Integer punctWordCount = Collections.frequency(wordsAndEmoticonsList, punctWord);
-                while (punctWordCount > 0) {
-                    final int index = wordsAndEmoticonsList.indexOf(punctWord);
-                    wordsAndEmoticonsList.remove(punctWord);
-                    wordsAndEmoticonsList.add(index, currentWord);
-                    punctWordCount = Collections.frequency(wordsAndEmoticonsList, punctWord);
-                }
-            }
-        }
-        this.wordsAndEmoticons = wordsAndEmoticonsList;
+        this.wordsAndEmoticons = tokensAftersKeepingEmoticons(inputText, wordsOnly);
     }
 
     /**
@@ -114,10 +140,6 @@ public final class TextProperties {
         this.wordsOnly = new InputAnalyzer().removePunctuation(inputText);
     }
 
-    private void setCapDiff(final boolean capDiff) {
-        this.isCapDiff = capDiff;
-    }
-
     public List<String> getWordsAndEmoticons() {
         return wordsAndEmoticons;
     }
@@ -127,27 +149,32 @@ public final class TextProperties {
         return wordsOnly;
     }
 
-    public boolean isCapDiff() {
-        return isCapDiff;
+    public boolean isYelling() {
+        return hasYellWords;
+    }
+
+    private void setHasYellWords(boolean hasYellWords) {
+        this.hasYellWords = hasYellWords;
     }
 
     /**
-     * Return true iff the input has yelling words i.e. all caps in the tokens, but all the token should not be
-     * in upper case.
+     * Return true iff the input has yelling words i.e. all caps in the tokens,
+     * but all the token should not be in upper case.
      * e.g. [GET, THE, HELL, OUT] returns false
      * [GET, the, HELL, OUT] returns true
      * [get, the, hell, out] returns false
      *
+     * @param tokenList a list of strings
      * @return boolean value
      */
-    private boolean isAllCapDifferential() {
+    private boolean hasCapDifferential(List<String> tokenList) {
         int countAllCaps = 0;
-        for (String token : wordsAndEmoticons) {
+        for (String token : tokenList) {
             if (Utils.isUpper(token)) {
                 countAllCaps++;
             }
         }
-        final int capDifferential = wordsAndEmoticons.size() - countAllCaps;
-        return (0 < capDifferential) && (capDifferential < wordsAndEmoticons.size());
+        final int capDifferential = tokenList.size() - countAllCaps;
+        return (capDifferential > 0) && (capDifferential < tokenList.size());
     }
 }

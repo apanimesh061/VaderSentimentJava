@@ -80,12 +80,12 @@ class InputAnalyzer implements InputAnalyzerInterface {
     }
 
     /**
-     * Implementation of {@link InputAnalyzerInterface#defaultSplit(String)}.
+     * Implementation of {@link InputAnalyzerInterface#keepPunctuation(String)}.
      *
      * {@inheritDoc}
      */
     @Override
-    public List<String> defaultSplit(final String inputString) throws IOException {
+    public List<String> keepPunctuation(final String inputString) throws IOException {
         return tokenize(inputString, false);
     }
 
