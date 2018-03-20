@@ -70,7 +70,6 @@ public class SentimentAnalyzerTest {
             InputStream inputStream = loader.getResourceAsStream(fileName);
             try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
                 String line;
-                SentimentAnalyzer sentimentAnalyzer = new SentimentAnalyzer();
                 while ((line = br.readLine()) != null) {
                     String[] gtFileData = line.split("\\t");
 
@@ -80,11 +79,7 @@ public class SentimentAnalyzerTest {
                     float expectedCompoundScore = Float.parseFloat(gtFileData[4]);
                     String inputString = gtFileData[5];
 
-                    sentimentAnalyzer.setInputString(inputString);
-                    sentimentAnalyzer.setInputStringProperties();
-                    sentimentAnalyzer.analyze();
-
-                    SentimentPolarities inputStringPolarity = sentimentAnalyzer.getPolarity();
+                    SentimentPolarities inputStringPolarity = SentimentAnalyzer.getScoresFor(inputString);
                     float actualNegativeScore = inputStringPolarity.getNegativePolarity();
                     float actualPositiveScore = inputStringPolarity.getPositivePolarity();
                     float actualNeutralScore = inputStringPolarity.getNeutralPolarity();

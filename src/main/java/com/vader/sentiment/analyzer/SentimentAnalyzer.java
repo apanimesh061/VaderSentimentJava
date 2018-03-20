@@ -59,63 +59,19 @@ public final class SentimentAnalyzer {
     private static Logger logger = LoggerFactory.getLogger(SentimentAnalyzer.class);
 
     /**
-     * This is the input string that will be analyzed.
+     * All functions is this class are static. So, this class should have a private constructor.
      */
-    private String inputString;
+    private SentimentAnalyzer() {
+    }
 
     /**
-     * There are the properties that are associated with {@link SentimentAnalyzer#inputString}.
+     * This method returns the polarity scores for a given input string.
      *
-     * @see TextProperties
+     * @param inputString the string to be analyzed.
+     * @return an object of {@link SentimentPolarities} which will hold all the sentiment scores.
      */
-    private TextProperties inputStringProperties;
-
-    /**
-     * Sentiment scores for the current {@link SentimentAnalyzer#inputString}.
-     */
-    private SentimentPolarities polarity;
-
-    /**
-     * Empty constructor for current class.
-     * This helps in lazy initialization of {@link SentimentAnalyzer#inputString}.
-     */
-    public SentimentAnalyzer() {
-    }
-
-    /**
-     * Parameterized constructor for current class.
-     *
-     * @param inputString This is the input string.
-     * @throws IOException if there was an error while executing {@link SentimentAnalyzer#setInputStringProperties()}.
-     */
-    public SentimentAnalyzer(String inputString) throws IOException {
-        this.inputString = inputString;
-        setInputStringProperties();
-    }
-
-    public void setInputString(String inputString) {
-        this.inputString = inputString;
-    }
-
-    /**
-     * Computes text properties required for current string.
-     *
-     * @throws IOException if there was an issue in getting {@link TextProperties} of the input string.
-     */
-    public void setInputStringProperties() throws IOException {
-        inputStringProperties = new TextProperties(inputString);
-    }
-
-    public SentimentPolarities getPolarity() {
-        return polarity;
-    }
-
-    /**
-     * This is the main function.
-     * This triggers all the sentiment scoring on the {@link SentimentAnalyzer#inputString}.
-     */
-    public void analyze() {
-        polarity = getSentiment();
+    public static SentimentPolarities getScoresFor(String inputString) {
+        return computeSentimentPolaritiesFor(inputString);
     }
 
     /**
@@ -581,20 +537,13 @@ public final class SentimentAnalyzer {
      * Convert the lower level token wise valence to a higher level polarity scores.
      *
      * @param tokenWiseSentimentStateParam the token wise scores of the input string
+     * @param punctuationAmplifier         valence adjustment factor for punctuations
      * @return the positive, negative, neutral and compound polarity scores as a map
      */
-    private SentimentPolarities getPolarityScores(final List<Float> tokenWiseSentimentStateParam) {
+    private static SentimentPolarities getPolarityScores(final List<Float> tokenWiseSentimentStateParam,
+                                                         final float punctuationAmplifier) {
         final List<Float> tokenWiseSentimentState = Collections.unmodifiableList(tokenWiseSentimentStateParam);
-        if (tokenWiseSentimentState.isEmpty()) {
-            return SentimentPolarities.emptySentimentState();
-        }
-
         logger.debug("Final token-wise sentiment state: " + tokenWiseSentimentState);
-
-        /*
-         * Adjust the total valence score on the basis of the punctuations in the input string.
-         */
-        final float punctuationAmplifier = boostByPunctuation(inputString);
 
         final float compoundPolarity = computeCompoundPolarityScore(tokenWiseSentimentState, punctuationAmplifier);
         final RawSentimentScores rawSentimentScores = computeRawSentimentScores(tokenWiseSentimentState,
@@ -800,11 +749,27 @@ public final class SentimentAnalyzer {
      * This is a composite function that computes token-wise sentiment scores and then converts that to
      * higher level scores.
      *
-     * @return the positive, negative, neutral and compound polarity scores as a map
+     * @param inputString string that is to be processed.
+     * @return the positive, negative, neutral and compound polarity scores as {@link SentimentPolarities}
      */
-    private SentimentPolarities getSentiment() {
+    private static SentimentPolarities computeSentimentPolaritiesFor(String inputString) {
+        // Parse the string using Lucene and get the text tokens.
+        final TextProperties inputStringProperties;
+        try {
+            inputStringProperties = new TextProperties(inputString);
+        } catch (IOException excp) {
+            logger.error("There was an issue while pre-processing the inputString.", excp);
+            return SentimentPolarities.emptySentimentState();
+        }
+
+        // Calculate the per-token valence.
         final List<Float> tokenWiseSentiments = getTokenWiseSentiment(inputStringProperties);
-        return getPolarityScores(tokenWiseSentiments);
+        if (tokenWiseSentiments.isEmpty()) {
+            return SentimentPolarities.emptySentimentState();
+        }
+        // Adjust the total valence score on the basis of the punctuations in the input string.
+        final float punctuationAmplifier = boostByPunctuation(inputString);
+        return getPolarityScores(tokenWiseSentiments, punctuationAmplifier);
     }
 }
 //CHECKSTYLE.ON: ExecutableStatementCount
