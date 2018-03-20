@@ -30,9 +30,7 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import com.vader.sentiment.util.ScoreType;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -86,11 +84,11 @@ public class SentimentAnalyzerTest {
                     sentimentAnalyzer.setInputStringProperties();
                     sentimentAnalyzer.analyze();
 
-                    Map<String, Float> inputStringPolarity = sentimentAnalyzer.getPolarity();
-                    float actualNegativeScore = inputStringPolarity.get(ScoreType.NEGATIVE);
-                    float actualPositiveScore = inputStringPolarity.get(ScoreType.POSITIVE);
-                    float actualNeutralScore = inputStringPolarity.get(ScoreType.NEUTRAL);
-                    float actualCompoundScore = inputStringPolarity.get(ScoreType.COMPOUND);
+                    SentimentPolarities inputStringPolarity = sentimentAnalyzer.getPolarity();
+                    float actualNegativeScore = inputStringPolarity.getNegativePolarity();
+                    float actualPositiveScore = inputStringPolarity.getPositivePolarity();
+                    float actualNeutralScore = inputStringPolarity.getNeutralPolarity();
+                    float actualCompoundScore = inputStringPolarity.getCompoundPolarity();
 
                     Assert.assertFalse(
                         getErrorMessage(inputString, actualNegativeScore, expectedNegativeScore, "Negative Score"),

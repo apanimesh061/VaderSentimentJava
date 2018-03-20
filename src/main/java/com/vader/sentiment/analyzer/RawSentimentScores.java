@@ -22,38 +22,51 @@
  * SOFTWARE.
  */
 
-package com.vader.sentiment.util;
+package com.vader.sentiment.analyzer;
 
 /**
- * This class defines labels for the four types of sentiment scores.
+ * This class defines the three types of raw sentiment scores which are non-normalized.
  *
  * @author Animesh Pandey
  */
-public final class ScoreType {
+public final class RawSentimentScores {
     /**
-     * Label for positive sentiment.
+     * This is the raw positive sentiment score.
      */
-    public static final String POSITIVE = "positive";
+    private final float positiveScore;
 
     /**
-     * Label for negative sentiment.
+     * This is the raw negative sentiment score.
      */
-    public static final String NEGATIVE = "negative";
+    private final float negativeScore;
 
     /**
-     * Label for neutral sentiment.
+     * This is the raw neutral sentiment score.
      */
-    public static final String NEUTRAL = "neutral";
+    private final float neutralScore;
 
     /**
-     * Label for compound sentiment.
+     * Creates an object of this class and sets all the fields.
+     *
+     * @param positiveScore positive score
+     * @param negativeScore negative score
+     * @param neutralScore  neutral score
      */
-    public static final String COMPOUND = "compound";
+    public RawSentimentScores(float positiveScore, float negativeScore, float neutralScore) {
+        this.positiveScore = positiveScore;
+        this.negativeScore = negativeScore;
+        this.neutralScore = neutralScore;
+    }
 
-    /**
-     * Private constructor for utility class.
-     */
-    private ScoreType() {
+    public float getPositiveScore() {
+        return positiveScore;
+    }
 
+    public float getNegativeScore() {
+        return negativeScore;
+    }
+
+    public float getNeutralScore() {
+        return neutralScore;
     }
 }
