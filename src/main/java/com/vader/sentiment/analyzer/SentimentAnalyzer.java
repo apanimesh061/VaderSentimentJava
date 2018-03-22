@@ -50,7 +50,6 @@ import com.vader.sentiment.util.Valence;
  */
 //CHECKSTYLE.OFF: ExecutableStatementCount
 //CHECKSTYLE.OFF: JavaNCSS
-//CHECKSTYLE.OFF: NPath
 //CHECKSTYLE.OFF: CyclomaticComplexity
 public final class SentimentAnalyzer {
     /**
@@ -82,8 +81,8 @@ public final class SentimentAnalyzer {
      * @param inputHasYelling true if the input string has any yelling words.
      * @return adjusted valence
      */
-    private static float valenceModifier(final String precedingToken, final float currentValence,
-                                         final boolean inputHasYelling) {
+    private static float adjustValenceIfCapital(final String precedingToken, final float currentValence,
+                                                final boolean inputHasYelling) {
         float scalar = 0.0F;
         final String precedingTokenLower = precedingToken.toLowerCase();
         if (Utils.getBoosterDictionary().containsKey(precedingTokenLower)) {
@@ -108,34 +107,21 @@ public final class SentimentAnalyzer {
      * - "never this current_word"
      * - "never so this" etc.
      *
-     * @param currentValence      valence before
      * @param distance            gram window size
      * @param currentItemPosition position of the current token
-     * @param closeTokenIndex     token at the distance position from current item
      * @param wordsAndEmoticons   tokenized version of the input text
-     * @return adjusted valence
+     * @return true if any of the above phrases are found.
      */
-    private static float checkForNever(final float currentValence, final int distance,
-                                       final int currentItemPosition, final int closeTokenIndex,
-                                       final List<String> wordsAndEmoticons) {
-        float newValence = currentValence;
-
-        if (distance == 0) {
-            if (isNegative(wordsAndEmoticons.get(closeTokenIndex))) {
-                newValence *= Valence.NEGATIVE_WORD_DAMPING_FACTOR.getValue();
-            }
-        } else if (distance == 1) {
+    private static boolean areNeverPhrasesPresent(final int distance, final int currentItemPosition,
+                                                  final List<String> wordsAndEmoticons) {
+        if (distance == 1) {
             final String wordAtDistanceTwoLeft =
                 wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_BIGRAM_WINDOW);
             final String wordAtDistanceOneLeft =
                 wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_UNIGRAM_WINDOW);
-            if ((wordAtDistanceTwoLeft.equals(SentimentModifyingTokens.NEVER.getValue()))
+            return (wordAtDistanceTwoLeft.equals(SentimentModifyingTokens.NEVER.getValue()))
                 && (wordAtDistanceOneLeft.equals(SentimentModifyingTokens.SO.getValue())
-                || (wordAtDistanceOneLeft.equals(SentimentModifyingTokens.NEVER.getValue())))) {
-                newValence *= Valence.PRECEDING_BIGRAM_HAVING_NEVER_DAMPING_FACTOR.getValue();
-            } else if (isNegative(wordsAndEmoticons.get(closeTokenIndex))) {
-                newValence *= Valence.NEGATIVE_WORD_DAMPING_FACTOR.getValue();
-            }
+                || (wordAtDistanceOneLeft.equals(SentimentModifyingTokens.NEVER.getValue())));
         } else if (distance == 2) {
             final String wordAtDistanceThreeLeft = wordsAndEmoticons.get(currentItemPosition
                 - Constants.PRECEDING_TRIGRAM_WINDOW);
@@ -143,15 +129,41 @@ public final class SentimentAnalyzer {
                 wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_BIGRAM_WINDOW);
             final String wordAtDistanceOneLeft =
                 wordsAndEmoticons.get(currentItemPosition - Constants.PRECEDING_UNIGRAM_WINDOW);
-            if ((wordAtDistanceThreeLeft.equals(SentimentModifyingTokens.NEVER.getValue()))
+            return (wordAtDistanceThreeLeft.equals(SentimentModifyingTokens.NEVER.getValue()))
                 && (wordAtDistanceTwoLeft.equals(SentimentModifyingTokens.SO.getValue())
                 || wordAtDistanceTwoLeft.equals(SentimentModifyingTokens.THIS.getValue()))
                 || (wordAtDistanceOneLeft.equals(SentimentModifyingTokens.SO.getValue())
-                || wordAtDistanceOneLeft.equals(SentimentModifyingTokens.THIS.getValue()))) {
-                newValence *= Valence.PRECEDING_TRIGRAM_HAVING_NEVER_DAMPING_FACTOR.getValue();
-            } else if (isNegative(wordsAndEmoticons.get(closeTokenIndex))) {
+                || wordAtDistanceOneLeft.equals(SentimentModifyingTokens.THIS.getValue()));
+        }
+        return false;
+    }
+
+    /**
+     * Adjust the valence is there tokens contain any token which is a negative token or the bigrams and trigrams
+     * around a token are phrases that have "never" in them.
+     *
+     * @param currentValence      valence before
+     * @param distance            gram window size
+     * @param currentItemPosition position of the current token
+     * @param closeTokenIndex     token at the distance position from current item
+     * @param wordsAndEmoticons   tokenized version of the input text
+     * @return adjusted valence.
+     */
+    private static float dampValenceIfNegativeTokensFound(final float currentValence, final int distance,
+                                                          final int currentItemPosition, final int closeTokenIndex,
+                                                          final List<String> wordsAndEmoticons) {
+        float newValence = currentValence;
+        final boolean anyNeverPhrase = areNeverPhrasesPresent(distance, currentItemPosition, wordsAndEmoticons);
+
+        if (!anyNeverPhrase) {
+            if (isNegative(wordsAndEmoticons.get(closeTokenIndex))) {
                 newValence *= Valence.NEGATIVE_WORD_DAMPING_FACTOR.getValue();
             }
+        } else {
+            final float neverPhraseAdjustment = (distance == 1)
+                ? Valence.PRECEDING_BIGRAM_HAVING_NEVER_DAMPING_FACTOR.getValue()
+                : Valence.PRECEDING_TRIGRAM_HAVING_NEVER_DAMPING_FACTOR.getValue();
+            newValence *= neverPhraseAdjustment;
         }
 
         return newValence;
@@ -281,12 +293,12 @@ public final class SentimentAnalyzer {
                                                     final List<String> wordsAndEmoticons, final int distance) {
         float newValence;
 
-        final List<String> leftGramSequences = getLeftGrams(wordsAndEmoticons, 2, 3,
-            currentItemPosition, distance);
+        final List<String> leftGramSequences = getLeftGrams(wordsAndEmoticons, 2,
+            Constants.MAX_GRAM_WINDOW_SIZE, currentItemPosition, distance);
         newValence = adjustValenceIfLeftGramsHaveIdioms(currentValence, leftGramSequences);
 
-        final List<String> rightGramSequences = getFirstRightGrams(wordsAndEmoticons, 2, 3,
-            currentItemPosition);
+        final List<String> rightGramSequences = getFirstRightGrams(wordsAndEmoticons, 2,
+            Constants.MAX_GRAM_WINDOW_SIZE, currentItemPosition);
         for (String rightGramSequence : rightGramSequences) {
             if (Utils.getSentimentLadenIdiomsValenceDictionary().containsKey(rightGramSequence)) {
                 newValence = Utils.getSentimentLadenIdiomsValenceDictionary().get(rightGramSequence);
@@ -377,7 +389,7 @@ public final class SentimentAnalyzer {
                         .toLowerCase())) {
 
                         logger.debug(String.format("Current Valence pre gramBasedValence: %f", currentValence));
-                        float gramBasedValence = valenceModifier(wordsAndEmoticons.get(closeTokenIndex),
+                        float gramBasedValence = adjustValenceIfCapital(wordsAndEmoticons.get(closeTokenIndex),
                             currentValence, textProperties.isYelling());
                         logger.debug(String.format("Current Valence post gramBasedValence: %f", currentValence));
                         /*
@@ -396,8 +408,8 @@ public final class SentimentAnalyzer {
                         logger.debug(String.format("Current Valence post gramBasedValence and "
                             + "distance based damping: %f", currentValence));
 
-                        currentValence = checkForNever(currentValence, distance, currentItemPosition,
-                            closeTokenIndex, wordsAndEmoticons);
+                        currentValence = dampValenceIfNegativeTokensFound(currentValence, distance,
+                            currentItemPosition, closeTokenIndex, wordsAndEmoticons);
 
                         logger.debug(String.format("Current Valence post \"never\" check: %f", currentValence));
 
@@ -410,6 +422,7 @@ public final class SentimentAnalyzer {
                             logger.debug(String.format("Current Valence post Idiom check: %f", currentValence));
                         }
                     }
+
                     distance++;
                 }
                 currentValence = adjustValenceIfHasAtLeast(currentItemPosition, wordsAndEmoticons, currentValence);
@@ -774,5 +787,4 @@ public final class SentimentAnalyzer {
 }
 //CHECKSTYLE.ON: ExecutableStatementCount
 //CHECKSTYLE.ON: JavaNCSS
-//CHECKSTYLE.ON: NPath
 //CHECKSTYLE.ON: CyclomaticComplexity
