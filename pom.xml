@@ -6,7 +6,7 @@
 
     <groupId>com.github.apanimesh061</groupId>
     <artifactId>vader-sentiment-analyzer</artifactId>
-    <version>1.0</version>
+    <version>1.0.2-SNAPSHOT</version>
 
     <packaging>jar</packaging>
     <description>
@@ -96,6 +96,42 @@
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                <archive>
+                  <manifestFile>${project.build.directory}/classes/META-INF/MANIFEST.MF</manifestFile>
+                </archive>
+              </configuration>
+            </plugin>
+            
+            <!-- Creates an OSGi-compliant Bundle Manifest -->
+            <plugin>
+              <groupId>org.apache.felix</groupId>
+              <artifactId>maven-bundle-plugin</artifactId>
+              <version>4.2.1</version>
+              <extensions>true</extensions>
+              <executions>
+                <execution>
+                  <id>create-osgi-manifest</id>
+                  <phase>process-classes</phase>
+                  <goals>
+                    <goal>manifest</goal>
+                  </goals>
+                </execution>
+              </executions>
+              <configuration>
+                <instructions>
+                  <!-- Guava does not adhere to semantic versioning, i.e. version 29 is not incompatible with version 21 -->
+                  <Import-Package>com.google.common.*;version="[21,29]",org.apache.commons.lang3*,org.slf4j</Import-Package>
+                  <!-- Due to split package issues, Lucene can not be resolved with Import-Package. Using Require-Bundle instead -->
+                  <Require-Bundle>org.apache.lucene.core,org.apache.lucene.analyzers-common</Require-Bundle>
+                </instructions>
+              </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -164,9 +200,7 @@
                         <descriptor>${elasticsearch.assembly.descriptor}</descriptor>
                     </descriptors>
                     <archive>
-                        <manifest>
-                            <mainClass>fully.qualified.MainClass</mainClass>
-                        </manifest>
+                        <manifestFile>${project.build.directory}/classes/META-INF/MANIFEST.MF</manifestFile>
                     </archive>
                 </configuration>
                 <executions>
