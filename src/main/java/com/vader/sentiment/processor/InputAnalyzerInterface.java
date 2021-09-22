@@ -26,6 +26,7 @@ package com.vader.sentiment.processor;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * This interface defines methods that use two methods for splitting up a raw string.
@@ -34,22 +35,20 @@ import java.util.List;
  */
 interface InputAnalyzerInterface {
     /**
-     * This is {@link InputAnalyzer#tokenize(String, boolean)} with removePunctuation set as false. So, this
-     * method performs tokenization without removing punctuations.
+     * This method performs tokenization without punctuation removal.
      *
      * @param inputString The input string to be pre-processed with Lucene tokenizer
-     * @return tokens
+     * @param tokenConsumer The consumer of the tokens
      * @throws IOException if Lucene's analyzer encounters any error
      */
-    List<String> keepPunctuation(String inputString) throws IOException;
+    void keepPunctuation(String inputString, Consumer<String> tokenConsumer) throws IOException;
 
     /**
-     * This is {@link InputAnalyzer#tokenize(String, boolean)} with removePunctuation set as false. So, this
-     * method performs tokenization without removing punctuations.
+     * This method performs tokenization with punctuation removal.
      *
      * @param inputString The input string to be pre-processed with Lucene tokenizer
-     * @return tokens
+     * @param tokenConsumer The consumer of the tokens
      * @throws IOException if Lucene's analyzer encounters any error
      */
-    List<String> removePunctuation(String inputString) throws IOException;
+    void removePunctuation(String inputString, Consumer<String> tokenConsumer) throws IOException;
 }

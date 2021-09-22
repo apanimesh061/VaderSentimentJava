@@ -24,6 +24,8 @@
 
 package com.vader.sentiment.util;
 
+import java.util.regex.Pattern;
+
 /**
  * This class defines constants that are used during the computation of the sentiment scores.
  *
@@ -73,12 +75,17 @@ public final class Constants {
     /**
      * This regex checks if a string has only alphabets and no special characters or numbers.
      */
-    public static final String NON_NUMERIC_STRING_REGEX = ".*[a-zA-Z]+.*";
+    public static final Pattern NON_NUMERIC_STRING_REGEX = Pattern.compile(".*[a-zA-Z]+.*");
 
     /**
      * This string defines the prefix for a string that has a URL.
      */
-    public static final String URL_PREFIX = "http://";
+    public static final String HTTP_URL_PREFIX = "http://";
+
+    /**
+     * This string defines the prefix for a string that has a URL.
+     */
+    public static final String HTTPS_URL_PREFIX = "https://";
 
     /**
      * The separator for a word N-gram.

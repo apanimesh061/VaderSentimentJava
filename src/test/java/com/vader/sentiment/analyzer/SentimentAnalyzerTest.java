@@ -105,7 +105,7 @@ public class SentimentAnalyzerTest {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            logger.info("Test passed for" + fileName);
+            logger.info("Test passed for {}", fileName);
         }
     }
 

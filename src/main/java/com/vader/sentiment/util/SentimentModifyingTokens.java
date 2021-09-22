@@ -44,7 +44,7 @@ public enum SentimentModifyingTokens {
     QUESTION_MARK("?"),
     CONTRACTION("n't");
 
-    private String value;
+    private final String value;
 
     SentimentModifyingTokens(String value) {
         this.value = value;

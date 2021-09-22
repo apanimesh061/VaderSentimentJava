@@ -25,10 +25,14 @@
 package com.vader.sentiment.processor;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
 
 import com.vader.sentiment.util.Utils;
+import org.apache.lucene.analysis.Tokenizer;
 
 /**
  * The TextProperties class implements the pre-processing steps of the input string for sentiment analysis.
@@ -40,7 +44,7 @@ public final class TextProperties {
     /**
      * String whose properties will be extracted.
      */
-    private String inputText;
+    private final String inputText;
 
     /**
      * List of tokens and emoticons extracted from the {@link TextProperties#inputText}.
@@ -48,10 +52,10 @@ public final class TextProperties {
     private List<String> wordsAndEmoticons;
 
     /**
-     * List of tokens extracted from the {@link TextProperties#inputText}.
+     * Set of tokens extracted from the {@link TextProperties#inputText}.
      * Emoticons are removed here.
      */
-    private List<String> wordsOnly;
+    private Set<String> wordsOnly;
 
     /**
      * Flags that specifies if the current string has yelling words.
@@ -81,49 +85,45 @@ public final class TextProperties {
      * @return tokenized version which preserves all the punctuations so that emoticons are preserved.
      * @throws IOException if there was an issue while Lucene was processing unTokenizedText
      */
-    private List<String> tokensAftersKeepingEmoticons(String unTokenizedText,
-                                                      List<String> tokensWithoutPunctuations) throws IOException {
-        final List<String> wordsAndEmoticonsList = new InputAnalyzer().keepPunctuation(unTokenizedText);
-        return handleTokensWithAdjacentPunctuations(wordsAndEmoticonsList, tokensWithoutPunctuations);
+    private List<String> tokensAftersKeepingEmoticons(final String unTokenizedText,
+                                                      final Set<String> tokensWithoutPunctuations) throws IOException {
+        final List<String> wordsAndEmoticonsList = new ArrayList<>();
+        new InputAnalyzer().keepPunctuation(unTokenizedText, wordsAndEmoticonsList::add);
+        wordsAndEmoticonsList.replaceAll(t -> stripPunctuations(t, tokensWithoutPunctuations));
+        return wordsAndEmoticonsList;
     }
 
     /**
      * Remove punctuations from a token, if adjacent to it without a space and replace it with the original token.
      * e.g. going!!!! -> going OR !?!?there -> there
      *
-     * @param tokensWithPunctuations    tokenized version of the input which has punctuations.
+     * @param token                     token that potentially includes punctuations.
      * @param tokensWithoutPunctuations tokenized version of the input which has no punctuations.
-     * @return a list of tokens.
+     * @return the token with any such punctuation removed from it, or the original token otherwise
      */
-    private List<String> handleTokensWithAdjacentPunctuations(List<String> tokensWithPunctuations,
-                                                              List<String> tokensWithoutPunctuations) {
-        for (String currentWord : tokensWithoutPunctuations) {
-            for (String currentPunctuation : Utils.PUNCTUATION_LIST) {
-                final String wordPunct = currentWord + currentPunctuation;
-                Integer wordPunctCount = Collections.frequency(tokensWithPunctuations, wordPunct);
-                while (wordPunctCount > 0) {
-                    final int index = tokensWithPunctuations.indexOf(wordPunct);
-                    tokensWithPunctuations.set(index, currentWord);
-                    wordPunctCount--;
+    private String stripPunctuations(String token, Set<String> tokensWithoutPunctuations) {
+        for (String punct : Utils.PUNCTUATIONS) {
+            if (token.startsWith(punct)) {
+                final String strippedToken =  token.substring(punct.length());
+                if (tokensWithoutPunctuations.contains(strippedToken)) {
+                    return strippedToken;
                 }
-
-                final String punctWord = currentPunctuation + currentWord;
-                Integer punctWordCount = Collections.frequency(tokensWithPunctuations, punctWord);
-                while (punctWordCount > 0) {
-                    final int index = tokensWithPunctuations.indexOf(punctWord);
-                    tokensWithPunctuations.set(index, currentWord);
-                    punctWordCount--;
+            }
+            else if (token.endsWith(punct)) {
+                final String strippedToken =  token.substring(0, token.length() - punct.length());
+                if (tokensWithoutPunctuations.contains(strippedToken)) {
+                    return strippedToken;
                 }
             }
         }
-        return tokensWithPunctuations;
+        return token;
     }
 
     /**
      * This method tokenizes the input string, preserving the punctuation marks using
      *
      * @throws IOException if something goes wrong in the Lucene analyzer.
-     * @see InputAnalyzer#tokenize(String, boolean)
+     * @see InputAnalyzer#tokenize(String, Tokenizer, Consumer)
      */
     private void setWordsAndEmoticons() throws IOException {
         setWordsOnly();
@@ -134,10 +134,11 @@ public final class TextProperties {
      * This method tokenizes the input string, removing the special characters as well.
      *
      * @throws IOException iff there is an error which using Lucene analyzers.
-     * @see InputAnalyzer#removePunctuation(String)
+     * @see InputAnalyzer#removePunctuation(String, Consumer)
      */
     private void setWordsOnly() throws IOException {
-        this.wordsOnly = new InputAnalyzer().removePunctuation(inputText);
+        this.wordsOnly = new HashSet<>();
+        new InputAnalyzer().removePunctuation(inputText, wordsOnly::add);
     }
 
     public List<String> getWordsAndEmoticons() {
@@ -145,7 +146,7 @@ public final class TextProperties {
     }
 
     @SuppressWarnings("unused")
-    public List<String> getWordsOnly() {
+    public Set<String> getWordsOnly() {
         return wordsOnly;
     }
 
