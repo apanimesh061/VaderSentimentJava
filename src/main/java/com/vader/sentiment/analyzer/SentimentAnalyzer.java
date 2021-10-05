@@ -317,10 +317,10 @@ public final class SentimentAnalyzer {
         List<Float> sentiments = new ArrayList<>();
         final List<String> wordsAndEmoticons = textProperties.getWordsAndEmoticons();
 
-        for (String currentItem : wordsAndEmoticons) {
-            float currentValence = 0.0F;
-            final int currentItemPosition = wordsAndEmoticons.indexOf(currentItem);
-            final String currentItemLower = currentItem.toLowerCase();
+		for (int currentItemPosition = 0; currentItemPosition < wordsAndEmoticons.size(); currentItemPosition++) {
+			final String currentItem = wordsAndEmoticons.get(currentItemPosition);
+			final String currentItemLower = currentItem.toLowerCase();
+			float currentValence = 0.0F;
 
             logger.debug("Current token, \"{}\" with index, i = {}", currentItem, currentItemPosition);
             logger.debug("Sentiment State before \"kind of\" processing: {}", sentiments);
@@ -350,8 +350,10 @@ public final class SentimentAnalyzer {
             if (Utils.WordValenceDictionary.containsKey(currentItemLower)) {
                 currentValence = Utils.WordValenceDictionary.get(currentItemLower);
 
-                logger.debug("Current currentItem isUpper(): {}", Utils.isUpper(currentItem));
-                logger.debug("Current currentItem isYelling(): {}", textProperties.isYelling());
+				if (logger.isDebugEnabled()) {
+					logger.debug("Current currentItem isUpper(): {}", Utils.isUpper(currentItem));
+					logger.debug("Current currentItem isYelling(): {}", textProperties.isYelling());
+				}
 
                 /*
                  * If current item is all in uppercase and the input string has yelling words,
@@ -438,13 +440,12 @@ public final class SentimentAnalyzer {
      * This methods calculates the positive, negative and neutral sentiment from the sentiment values of the input
      * string.
      *
-     * @param tokenWiseSentimentStateParam valence of the each token in input string
+     * @param tokenWiseSentimentState      valence of the each token in input string
      * @param punctuationAmplifier         valence adjustment factor for punctuations
      * @return an object of the non-normalized scores as {@link RawSentimentScores}.
      */
-    private static RawSentimentScores computeRawSentimentScores(final List<Float> tokenWiseSentimentStateParam,
+    private static RawSentimentScores computeRawSentimentScores(final List<Float> tokenWiseSentimentState,
                                                                 final float punctuationAmplifier) {
-        final List<Float> tokenWiseSentimentState = Collections.unmodifiableList(tokenWiseSentimentStateParam);
         float positiveSentimentScore = 0.0F;
         float negativeSentimentScore = 0.0F;
         int neutralSentimentCount = 0;
@@ -510,14 +511,15 @@ public final class SentimentAnalyzer {
         final float normalizationFactor = positiveSentimentScore + Math.abs(negativeSentimentScore)
             + neutralSentimentCount;
 
-        logger.debug("Normalization Factor: {}", normalizationFactor);
-
-        logger.debug("Pre-Normalized Scores: {} {} {} {}}",
-            Math.abs(positiveSentimentScore),
-            Math.abs(negativeSentimentScore),
-            Math.abs(neutralSentimentCount),
-            compoundPolarityScore
-        );
+		if (logger.isDebugEnabled()) {
+			logger.debug("Normalization Factor: {}", normalizationFactor);
+			logger.debug("Pre-Normalized Scores: {} {} {} {}}",
+					Math.abs(positiveSentimentScore),
+					Math.abs(negativeSentimentScore),
+					Math.abs(neutralSentimentCount),
+					compoundPolarityScore
+			);
+		}
 
         final float absolutePositivePolarity = Math.abs(positiveSentimentScore / normalizationFactor);
         final float absoluteNegativePolarity = Math.abs(negativeSentimentScore / normalizationFactor);
