@@ -99,7 +99,7 @@ public enum Valence {
     /**
      * Valence value.
      */
-    private float value;
+    private final float value;
 
     /**
      * Enum constructor.

@@ -1165,7 +1165,7 @@
 113_4	0.183	0.667	0.15	-0.0516	''Our troops deployed on Operation Desert Shield deserve better than to be exposed to greater risk of disease and death,'' wrote Mr. Mendez upon learning of the policy violation.
 113_5	0.319	0.609	0.072	-0.7845	''Smoking undermines readiness on the battlefield and is one of the leading preventable causes of disease and death among military personnel.''
 113_6	0.0	1.0	0.0	0.0	Both cigarette makers own food subsidiaries.
-113_7	0.0	0.708	0.292	0.765	Instead of free cigarettes to express patriotism, why not regular free shipments of Oreo cookies or Kraft cheese?
+113_7	0.0	0.708	0.292	0.1526	Instead of free cigarettes to express patriotism, why not regular free shipments of Oreo cookies or Kraft cheese?
 114_1	0.538	0.462	0.0	-0.5423	Men have it bad.
 114_2	0.701	0.299	0.0	-0.5719	No doubt about it.
 114_3	0.075	0.823	0.102	0.0258	Just when they thought it was safe to eat quiche, cry at the movies and go to plastic surgeons for nips and tucks, along come the trustees of the Muckenthaler Cultural Center to tell them it isn't.
@@ -2234,7 +2234,7 @@
 213_8	0.0	1.0	0.0	0.0	The remaining 16 million items are scattered among the Smithsonian's 10 other museums and galleries, plus the zoo, 19 Quonset huts for air and space craft, and, for everything else, there's a 4 1/2-acre warehouse outside Washington.
 213_9	0.461	0.539	0.0	-0.8126	That's room enough to make housekeepers weep with envy and apartment dwellers bawl in despair.
 213_10	0.0	0.714	0.286	0.34	But think of it as national security.
-213_11	0.0	0.328	0.672	0.8481	What's a great nation without a great closet?
+213_11	0.0	0.328	0.672	0.2037	What's a great nation without a great closet?
 214_1	0.175	0.825	0.0	-0.6486	Since the army shot down a democratic revolution in Myanmar, formerly Burma, 19 months ago, that nation's 40 million people have been helpless victims of a capricious military regime.
 214_2	0.437	0.563	0.0	-0.4767	Washington has suspended official aid.
 214_3	0.216	0.784	0.0	-0.6705	But Myanmar's ruling State Law and Order Restoration Council, or Slorc, has found a new way to pay for its brutal military operations.
@@ -3987,7 +3987,7 @@
 382_4	0.0	1.0	0.0	0.0	Yesterday seemed much colder than 32 degrees, and for the first time in months people talked about wind chill.
 382_5	0.0	1.0	0.0	0.0	Small wonder.
 382_6	0.115	0.885	0.0	-0.4588	Gusts of 45 m.p.h. blew jumbo jets around on runways; by 4 P.M. the wind chill factor had plummeted to the dread milestone of zero.
-382_8	0.163	0.736	0.101	-0.0726	Pronouncing such winter words doesn't warm the body one whit but it does seem to warm the spirit.
+382_8	0.163	0.736	0.101	0.4708	Pronouncing such winter words doesn't warm the body one whit but it does seem to warm the spirit.
 382_9	0.051	0.778	0.171	0.6124	Caught in the icy blast, the dazed pedestrian can at least seek comfort in calibrations of courage, as if to say: Mere temperature does not convey how much I endured.
 382_10	0.0	1.0	0.0	0.0	Why, the wind chill factor was ...
 382_11	0.0	0.863	0.137	0.4019	Yes, the wind chill factor describes the rate of heat removal from the body by wind and cold.
@@ -5174,7 +5174,7 @@
 499_2	0.05	0.84	0.111	0.3818	This oversight may be corrected by the Legislature, thanks to the lobbying of a group of fourth-graders from Syracuse on behalf of the apple muffin.
 499_3	0.0	1.0	0.0	0.0	The pupils in Mary Craven's class point out that New York is the nation's second-largest apple-producing state and that the apple is the state's official fruit.
 499_4	0.1	0.722	0.178	0.34	A bill to honor the apple muffin, sponsored by Michael Bragman, Democrat of Cicero, appears unstoppable.
-499_5	0.0	0.69	0.31	0.3818	The sentiment is fine; the nutritional side not so fine.
+499_5	0.0	0.69	0.31	-0.0544	The sentiment is fine; the nutritional side not so fine.
 499_6	0.0	1.0	0.0	0.0	Ms. Craven's class and its baking consultant, a professor at Onondaga Community College, could come up with a more healthful recipe.
 499_7	0.0	1.0	0.0	0.0	A batch of the apple muffins they are pushing calls for 3/4 cup of brown sugar, 1/2 cup of granulated sugar, 3 eggs, 1/2 cup of butter and 4 ounces of cream cheese.
 499_8	0.0	1.0	0.0	0.0	A suggested topping contains 1/2 cup more of brown sugar.

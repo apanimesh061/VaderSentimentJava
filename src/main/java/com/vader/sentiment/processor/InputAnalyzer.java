@@ -26,8 +26,7 @@ package com.vader.sentiment.processor;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.function.Consumer;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
@@ -44,58 +43,45 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
  */
 class InputAnalyzer implements InputAnalyzerInterface {
     /**
-     * This function applies a Lucene analyzer that splits a string into a tokens.
-     * Here we are using two types of Lucene {@link Tokenizer}s:
-     * 1. {@link WhitespaceTokenizer} which tokenizes from the white spaces
-     * 2. {@link StandardTokenizer} which tokenizes from white space as well as removed any punctuations
+     * This function applies a Lucene tokenizer that splits a string into a tokens.
      *
-     * @param inputString       The input string to be pre-processed with Lucene tokenizer
-     * @param removePunctuation Flag which specifies if punctuations have to be removed from the string.
-     * @return tokens
-     * @throws IOException if Lucene's analyzer encounters any error
+     * @param inputString The input string to be pre-processed with Lucene tokenizer
+     * @param tokenizer The tokenizer to use for processing the input string
+     * @param tokenConsumer The consumer of the tokens
+     * @throws IOException if Lucene's tokenizer encounters any error
      */
-    private List<String> tokenize(final String inputString, final boolean removePunctuation) throws IOException {
-        final StringReader reader = new StringReader(inputString);
-        final Tokenizer currentTokenizer;
-        if (removePunctuation) {
-            currentTokenizer = new StandardTokenizer();
-        } else {
-            currentTokenizer = new WhitespaceTokenizer();
+    private void tokenize(final String inputString, final Tokenizer tokenizer, final Consumer<String> tokenConsumer) throws IOException {
+        tokenizer.setReader(new StringReader(inputString));
+
+        try (TokenStream tokenStream = new LengthFilter(tokenizer, 2, Integer.MAX_VALUE)) {
+            final CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
+            tokenStream.reset();
+
+            while (tokenStream.incrementToken()) {
+                tokenConsumer.accept(charTermAttribute.toString());
+            }
+
+            tokenStream.end();
         }
-        currentTokenizer.setReader(reader);
-
-        final TokenStream tokenStream = new LengthFilter(currentTokenizer, 2, Integer.MAX_VALUE);
-        final CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
-        tokenStream.reset();
-
-        final List<String> tokenizedString = new ArrayList<>();
-        while (tokenStream.incrementToken()) {
-            tokenizedString.add(charTermAttribute.toString());
-        }
-
-        tokenStream.end();
-        tokenStream.close();
-
-        return tokenizedString;
     }
 
     /**
-     * Implementation of {@link InputAnalyzerInterface#keepPunctuation(String)}.
+     * Performs tokenization using Lucene's {@link WhitespaceTokenizer}, which tokenizes from the white spaces.
      *
      * {@inheritDoc}
      */
     @Override
-    public List<String> keepPunctuation(final String inputString) throws IOException {
-        return tokenize(inputString, false);
+    public void keepPunctuation(final String inputString, final Consumer<String> tokenConsumer) throws IOException {
+        tokenize(inputString, new WhitespaceTokenizer(), tokenConsumer);
     }
 
     /**
-     * Implementation of {@link InputAnalyzerInterface#removePunctuation(String)}.
+     * Performs tokenization using Lucene's {@link StandardTokenizer}, which tokenizes from white space as well as removed any punctuations.
      *
      * {@inheritDoc}
      */
     @Override
-    public List<String> removePunctuation(final String inputString) throws IOException {
-        return tokenize(inputString, true);
+    public void removePunctuation(final String inputString, final Consumer<String> tokenConsumer) throws IOException {
+        tokenize(inputString, new StandardTokenizer(), tokenConsumer);
     }
 }

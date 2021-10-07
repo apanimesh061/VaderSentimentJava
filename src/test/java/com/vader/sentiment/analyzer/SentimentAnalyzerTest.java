@@ -28,8 +28,12 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -105,7 +109,7 @@ public class SentimentAnalyzerTest {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            logger.info("Test passed for" + fileName);
+            logger.info("Test passed for {}", fileName);
         }
     }
 
@@ -144,4 +148,18 @@ public class SentimentAnalyzerTest {
         int maxPlaces = Math.max(fractionalPartLength(actual), fractionalPartLength(experiment));
         return ((Math.abs(Math.abs(actual * maxPlaces) - Math.abs(experiment * maxPlaces))) > 1.0);
     }
+
+	public static void main(String[] files)
+			throws Exception
+	{
+		for (String file : files) {
+			System.out.printf("Analyzing file %s...%n", file);
+			byte[] fileBytes = Files.readAllBytes(Paths.get(file));
+			String text = new String(fileBytes, StandardCharsets.UTF_8);
+			long startTime = System.nanoTime();
+			SentimentPolarities sp = SentimentAnalyzer.getScoresFor(text);
+			long endTime = System.nanoTime();
+			System.out.printf("%s (%,d ms)%n", sp, TimeUnit.NANOSECONDS.toMillis(endTime - startTime));
+		}
+	}
 }
