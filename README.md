@@ -11,6 +11,65 @@ This is a JAVA port of the NLTK VADER sentiment analysis originally written in P
 
 For the testing I have compared the results of the NLTK module with this Java port.
 
+### Update (Oct 2021)
+- - -
+Releasing `v1.1.1`.
+
+Thanks to @ArjohnKampman for helping is optimizing some parts of the code. Since I was touching this repo after a long time, I noticed that a lot of the Maven dependencies and plugins were outdated, so I have updated them. `mvn package` still works so it should be fine.
+
+I also noticed a lot of comments on not being able to use the library from Maven. I did upload a Jar to Nexus a long time back and I was having trouble doing that again since I think I've lost the pass-phrases needed to sign and upload the Jar to the Nexus. Luckily, I found a new solution [here](https://stackoverflow.com/a/28483461) which suggests to use https://jitpack.io/ for public GitHub repositories. Turns out it is super simple to use it and get the pacakge from GitHub. I wanted to make sure I unblock anyone who wants to use this package.
+
+I created a test Maven project `test-mvn-pkg1` locally and added the following to its `pom.xml`:
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>test-mvn-pkg1</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.apanimesh061</groupId>
+            <artifactId>VaderSentimentJava</artifactId>
+            <version>v1.1.1</version>
+        </dependency>
+    </dependencies>
+
+</project>
+```
+Once Maven downloads the dependencies, you can easily use it in your code like:
+
+```
+package org.example;
+
+import com.vader.sentiment.analyzer.SentimentAnalyzer;
+import com.vader.sentiment.analyzer.SentimentPolarities;
+
+public class Test {
+    public static void main(String[] args) {
+        final SentimentPolarities sentimentPolarities =
+            SentimentAnalyzer.getScoresFor("that's a rare and valuable feature.");
+        System.out.println(sentimentPolarities);
+	// SentimentPolarities{positivePolarity=0.437, negativePolarity=0.0, neutralPolarity=0.563, compoundPolarity=0.4767}
+    }
+}
+```
+
+I'll try the Nexus upload and figure out if I can create a new Maven repo all together. Meanwhile, `jitpack` should work for anyone wanting to use the package.
+
+
 ### Update (Jan 2018)
 
 - - -
