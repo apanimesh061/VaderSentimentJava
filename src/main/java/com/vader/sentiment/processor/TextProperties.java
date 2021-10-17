@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Animesh Pandey
+ * Copyright (c) 2021 Animesh Pandey
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,10 +29,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
-
 import com.vader.sentiment.util.Utils;
-import org.apache.lucene.analysis.Tokenizer;
 
 /**
  * The TextProperties class implements the pre-processing steps of the input string for sentiment analysis.
@@ -102,15 +99,14 @@ public final class TextProperties {
      * @return the token with any such punctuation removed from it, or the original token otherwise
      */
     private String stripPunctuations(String token, Set<String> tokensWithoutPunctuations) {
-        for (String punct : Utils.PUNCTUATIONS) {
+        for (final String punct : Utils.PUNCTUATIONS) {
             if (token.startsWith(punct)) {
-                final String strippedToken =  token.substring(punct.length());
+                final String strippedToken = token.substring(punct.length());
                 if (tokensWithoutPunctuations.contains(strippedToken)) {
                     return strippedToken;
                 }
-            }
-            else if (token.endsWith(punct)) {
-                final String strippedToken =  token.substring(0, token.length() - punct.length());
+            } else if (token.endsWith(punct)) {
+                final String strippedToken = token.substring(0, token.length() - punct.length());
                 if (tokensWithoutPunctuations.contains(strippedToken)) {
                     return strippedToken;
                 }
@@ -120,10 +116,10 @@ public final class TextProperties {
     }
 
     /**
-     * This method tokenizes the input string, preserving the punctuation marks using
+     * This method tokenizes the input string, preserving the punctuation marks using a custom Lucene analyzer.
      *
      * @throws IOException if something goes wrong in the Lucene analyzer.
-     * @see InputAnalyzer#tokenize(String, Tokenizer, Consumer)
+     * @see InputAnalyzer#tokenize(String, org.apache.lucene.analysis.Tokenizer, java.util.function.Consumer)
      */
     private void setWordsAndEmoticons() throws IOException {
         setWordsOnly();
@@ -134,7 +130,7 @@ public final class TextProperties {
      * This method tokenizes the input string, removing the special characters as well.
      *
      * @throws IOException iff there is an error which using Lucene analyzers.
-     * @see InputAnalyzer#removePunctuation(String, Consumer)
+     * @see InputAnalyzer#removePunctuation(String, java.util.function.Consumer)
      */
     private void setWordsOnly() throws IOException {
         this.wordsOnly = new HashSet<>();

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Animesh Pandey
+ * Copyright (c) 2021 Animesh Pandey
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -149,17 +149,16 @@ public class SentimentAnalyzerTest {
         return ((Math.abs(Math.abs(actual * maxPlaces) - Math.abs(experiment * maxPlaces))) > 1.0);
     }
 
-	public static void main(String[] files)
-			throws Exception
-	{
-		for (String file : files) {
-			System.out.printf("Analyzing file %s...%n", file);
-			byte[] fileBytes = Files.readAllBytes(Paths.get(file));
-			String text = new String(fileBytes, StandardCharsets.UTF_8);
-			long startTime = System.nanoTime();
-			SentimentPolarities sp = SentimentAnalyzer.getScoresFor(text);
-			long endTime = System.nanoTime();
-			System.out.printf("%s (%,d ms)%n", sp, TimeUnit.NANOSECONDS.toMillis(endTime - startTime));
-		}
-	}
+    public static void main(String[] files)
+        throws Exception {
+        for (String file : files) {
+            System.out.printf("Analyzing file %s...%n", file);
+            byte[] fileBytes = Files.readAllBytes(Paths.get(file));
+            String text = new String(fileBytes, StandardCharsets.UTF_8);
+            long startTime = System.nanoTime();
+            SentimentPolarities sp = SentimentAnalyzer.getScoresFor(text);
+            long endTime = System.nanoTime();
+            System.out.printf("%s (%,d ms)%n", sp, TimeUnit.NANOSECONDS.toMillis(endTime - startTime));
+        }
+    }
 }

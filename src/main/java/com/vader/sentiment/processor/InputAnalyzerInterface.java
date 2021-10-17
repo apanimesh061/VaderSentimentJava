@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Animesh Pandey
+ * Copyright (c) 2021 Animesh Pandey
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,6 @@
 package com.vader.sentiment.processor;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -37,7 +36,7 @@ interface InputAnalyzerInterface {
     /**
      * This method performs tokenization without punctuation removal.
      *
-     * @param inputString The input string to be pre-processed with Lucene tokenizer
+     * @param inputString   The input string to be pre-processed with Lucene tokenizer
      * @param tokenConsumer The consumer of the tokens
      * @throws IOException if Lucene's analyzer encounters any error
      */
@@ -46,7 +45,7 @@ interface InputAnalyzerInterface {
     /**
      * This method performs tokenization with punctuation removal.
      *
-     * @param inputString The input string to be pre-processed with Lucene tokenizer
+     * @param inputString   The input string to be pre-processed with Lucene tokenizer
      * @param tokenConsumer The consumer of the tokens
      * @throws IOException if Lucene's analyzer encounters any error
      */

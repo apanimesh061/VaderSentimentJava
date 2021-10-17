@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Animesh Pandey
+ * Copyright (c) 2021 Animesh Pandey
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,8 @@
  */
 
 /**
+ * Package containing analyzer classes.
+ *
  * @author Animesh Pandey
- * Created on 5/7/2017.
  */
 package com.vader.sentiment.analyzer;
