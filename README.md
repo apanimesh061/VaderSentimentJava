@@ -253,9 +253,9 @@ public static void main(String[] args) throws IOException {
 
     for (String sentence : sentences) {
         System.out.println(sentence);
-        SentimentAnalyzer sentimentAnalyzer = new SentimentAnalyzer(sentence);
-        sentimentAnalyzer.analyse();
-        System.out.println(sentimentAnalyzer.getPolarity());
+        final SentimentPolarities sentimentPolarities =
+			SentimentAnalyzer.getScoresFor(sentence);
+        System.out.println(sentimentPolarities);
     }
 }
 ```
