@@ -158,7 +158,7 @@ public final class Utils {
     /**
      * Tokens with their respective valencies.
      */
-    public static final Map<String, Float> WORD_VALENCE_DICTIONARY = readLexiconFile();
+    public static final Map<String, Float> WORD_VALENCE_DICTIONARY = readLexiconFile("vader_sentiment_lexicon.txt");
 
     /**
      * Private constructor for utility class.
@@ -200,9 +200,9 @@ public final class Utils {
      *
      * @return map of lexicons with their corresponding valence
      */
-    private static Map<String, Float> readLexiconFile() {
+    private static Map<String, Float> readLexiconFile(String lexiconFile) {
         final InputStream lexFile = Utils.class.getClassLoader()
-                                               .getResourceAsStream("vader_sentiment_lexicon.txt");
+                                               .getResourceAsStream(lexiconFile);
         final Map<String, Float> lexDictionary = new HashMap<>();
         if (lexFile != null) {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(lexFile, StandardCharsets.UTF_8))) {

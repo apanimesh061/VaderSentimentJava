@@ -198,7 +198,7 @@ public final class SentimentAnalyzer {
             final int windowStart = end - minGramLength + 1;
             final int windowEnd = end - maxGramLength;
             String currentSuffix = tokenList.get(end);
-            for (int start = windowStart; start >= ((windowEnd < 0) ? 0 : Math.max(0, windowEnd) + 1); start--) {
+            for (int start = windowStart; start >= ((windowEnd < 0) ? 0 : windowEnd + 1); start--) {
                 currentSuffix = tokenList.get(start) + Constants.SPACE_SEPARATOR + currentSuffix;
                 result.add(currentSuffix);
                 if ((startPosition - end) == maxDistanceFromStartPosition) {
@@ -739,7 +739,7 @@ public final class SentimentAnalyzer {
      * @return rounded float value
      */
     private static float roundDecimal(final float currentValue, final int noOfPlaces) {
-        final float factor = (float) Math.pow(10.0, (double) noOfPlaces);
+        final float factor = (float) Math.pow(10.0, noOfPlaces);
         final float number = Math.round(currentValue * factor);
         return number / factor;
     }
