@@ -158,7 +158,7 @@ public final class Utils {
     /**
      * Tokens with their respective valencies.
      */
-    public static final Map<String, Float> WORD_VALENCE_DICTIONARY = readLexiconFile("vader_sentiment_lexicon.txt");
+    public static Map<String, Float> WORD_VALENCE_DICTIONARY = readLexiconFile("vader_sentiment_lexicon.txt");
 
     /**
      * Private constructor for utility class.
